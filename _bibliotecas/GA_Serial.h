@@ -1136,10 +1136,97 @@ void CrossOver1Ponto_serial(	struct generation *g0,
 				g1->individuo[iIndividuo].gene[iGene] =       f*Pai->gene[iGene] + (1 - f)*Mae->gene[iGene];				
 			}
 		}
+		/*
+
+		Removi esse Else pois, na minha opinião, não faz sentido. Estou selecionando 
+		o Pai arbitrariamente.
+
 		else {
 			for (iGene = 0; iGene < parametrosGA->numGenes; iGene++) {
 				g1->individuo[iIndividuo].gene[iGene] =	Pai->gene[iGene];			
 			}
+		}
+		*/
+	}
+}
+
+//=========================================================================================================
+void CrossOver2Pontos_serial(	struct generation *g0,
+										struct generation *g1,
+										struct parametros *parametrosGA ) {
+										//struct testeGeracao_s *host_TesteGeracao_s) {
+//=========================================================================================================
+	unsigned short int iIndividuo, idx_Pai, idx_Mae;
+	unsigned long int iGene;
+
+	struct individual *Pai, *Mae;
+	float f, p_aux;	// p = probabilidade auxiliar para comparacao com a probabilidade do crossover
+
+	for (iIndividuo = 0; iIndividuo < parametrosGA->numIndividuos; iIndividuo = iIndividuo + 1) {	
+		// iIndividuo = iIndividuo + 2 limita numIndividuos como um número par.
+
+		// Coloquei a obtenção do Pai e da Mãe aqui em cima porque eles são utilizados mesmo se 
+		// o Crossover não acontece (pra apenas repassar os indivíduos).
+
+		idx_Pai = Randomico_int(0, parametrosGA->numIndividuos - 1);
+		//idx_Pai = iIndividuo;
+		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("idx_Pai =\t%d", idx_Pai);
+		
+		//host_TesteGeracao_s->individuo[iIndividuo].idx_Pai = idx_Pai;
+		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].idx_Pai =\t%d", host_TesteGeracao_s->individuo[iIndividuo].idx_Pai);
+		
+		idx_Mae = Randomico_int(0, parametrosGA->numIndividuos - 1);
+		//printf("\nCrossOver1Ponto_serial\t"); printf("idx_Mae =\t%d", idx_Mae);
+		//host_TesteGeracao_s->individuo[iIndividuo].idx_Mae = idx_Mae;
+		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].idx_Mae =\t%d", host_TesteGeracao_s->individuo[iIndividuo].idx_Mae);
+
+		Pai = &g0->individuo[idx_Pai];
+		Mae = &g0->individuo[idx_Mae];
+
+		p_aux = (float)((float)rand() / (float)RAND_MAX);
+		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("p_aux =\t%f", p_aux);
+		//host_TesteGeracao_s->individuo[iIndividuo].p = p_aux;
+		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].p =\t%f", host_TesteGeracao_s->individuo[iIndividuo].p);
+
+		f = -1.0F;
+		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("f =\t%f", f);
+		//host_TesteGeracao_s->individuo[iIndividuo].f = f;
+		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].f =\t%f", host_TesteGeracao_s->individuo[iIndividuo].f);
+
+		g1->individuo[iIndividuo].pontos_de_corte[0] = Randomico_int(0, (parametrosGA->numGenes-1));
+		g1->individuo[iIndividuo].pontos_de_corte[1] = Randomico_int(0, (parametrosGA->numGenes-1));
+
+		// Ordena em ordem crescente os pontos de corte
+		unsigned short int int_aux = -999999;
+		if (g1->individuo[iIndividuo].pontos_de_corte[0] > g1->individuo[iIndividuo].pontos_de_corte[1]) {
+			int_aux = g1->individuo[iIndividuo].pontos_de_corte[0];
+			g1->individuo[iIndividuo].pontos_de_corte[0] = g1->individuo[iIndividuo].pontos_de_corte[1];
+			g1->individuo[iIndividuo].pontos_de_corte[1] = int_aux;
+		}
+		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("ponto_de_corte =\t%d", ponto_de_corte);
+		//host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0] = ponto_de_corte;
+		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0] =\t%d", host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0]);
+		//host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1] = 0;
+		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1] =\t%d", host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1]);
+	
+		if (p_aux <= parametrosGA->probCrossOver) {
+			
+			f = (float)((float)rand()/(float)RAND_MAX);
+			//host_TesteGeracao_s->individuo[iIndividuo].f = f;			
+
+			for (iGene = 0; iGene < g1->individuo[iIndividuo].pontos_de_corte[0]; iGene++) {
+				g1->individuo[iIndividuo    ].gene[iGene] = Pai->gene[iGene];				
+			}
+			
+			// na segunda parte há alteração, mas apenas entre os dois pontos de corte.
+			for (iGene = g1->individuo[iIndividuo].pontos_de_corte[0]; iGene < g1->individuo[iIndividuo].pontos_de_corte[1]; iGene++) {				
+				g1->individuo[iIndividuo].gene[iGene] =       f*Pai->gene[iGene] + (1 - f)*Mae->gene[iGene];				
+			}
+
+			for (iGene = g1->individuo[iIndividuo].pontos_de_corte[1]; iGene < parametrosGA->numGenes; iGene++) {
+				g1->individuo[iIndividuo    ].gene[iGene] = Pai->gene[iGene];				
+			}
+
 		}
 	}
 }
@@ -1200,8 +1287,8 @@ void Mutacao_Serial(	struct generation *geracao,
 //---------------------------------------------------------------------------------------
 void GeraPopulacaoInicial_serial(
 						struct generation *GeracaoInicial,
-						struct parametros *parametrosGA) {
-						//struct testeGeracao_s *host_testeGeracao) {
+						struct parametros *parametrosGA,
+						struct testeGeracao_s *host_testeGeracao) {
 //---------------------------------------------------------------------------------------
 
 	unsigned short int iIndividuo, qtdePontosCorte, iPontoCorte;
@@ -1328,10 +1415,10 @@ void teste_GeraPopulacaoInicial_serial(void) {
 	struct generation				geracaoTeste;
 	struct parametros				parametrosGA;
 	struct parametros_Metodo	parametrosMetodo;
-	//struct testeGeracao_s		host_testeGeracao_s;
+	struct testeGeracao_s		host_testeGeracao_s;
 	
 	inicializa_Parametros(&parametrosGA, &parametrosMetodo);
-	GeraPopulacaoInicial_serial(&geracaoTeste, &parametrosGA);//, &host_testeGeracao_s);
+	GeraPopulacaoInicial_serial(&geracaoTeste, &parametrosGA, &host_testeGeracao_s);
 
 	imprimeGeracao(&geracaoTeste, &parametrosGA);
 
