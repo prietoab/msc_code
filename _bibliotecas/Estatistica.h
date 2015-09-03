@@ -174,3 +174,9 @@ void gravaEstatistica(	struct generation *Geracao,
 		fclose(arqEstatistica);		
 	}
 }
+
+// -----------------------------------------------------------------------
+float erroAbsolutoEntre2(float num1, float num2) {
+// -----------------------------------------------------------------------
+	return abs(num1 - num2);
+}
