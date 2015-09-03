@@ -1136,25 +1136,22 @@ void CrossOver1Ponto_serial(	struct generation *g0,
 				g1->individuo[iIndividuo].gene[iGene] =       f*Pai->gene[iGene] + (1 - f)*Mae->gene[iGene];				
 			}
 		}
-		/*
-
-		Removi esse Else pois, na minha opinião, não faz sentido. Estou selecionando 
-		o Pai arbitrariamente.
-
 		else {
+			// Se não acontece o crossover, o mesmo indivíduo da 
+			// geração anterior é passado pra próxima.
 			for (iGene = 0; iGene < parametrosGA->numGenes; iGene++) {
-				g1->individuo[iIndividuo].gene[iGene] =	Pai->gene[iGene];			
+				g1->individuo[iIndividuo].gene[iGene] =	g0->individuo[iIndividuo].gene[iGene];			
 			}
 		}
-		*/
+		
 	}
 }
 
 //=========================================================================================================
 void CrossOver2Pontos_serial(	struct generation *g0,
 										struct generation *g1,
-										struct parametros *parametrosGA ) {
-										//struct testeGeracao_s *host_TesteGeracao_s) {
+										struct parametros *parametrosGA,
+										struct testeGeracao_s *host_TesteGeracao_s) {
 //=========================================================================================================
 	unsigned short int iIndividuo, idx_Pai, idx_Mae;
 	unsigned long int iGene;
@@ -1171,13 +1168,12 @@ void CrossOver2Pontos_serial(	struct generation *g0,
 		idx_Pai = Randomico_int(0, parametrosGA->numIndividuos - 1);
 		//idx_Pai = iIndividuo;
 		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("idx_Pai =\t%d", idx_Pai);
-		
-		//host_TesteGeracao_s->individuo[iIndividuo].idx_Pai = idx_Pai;
+		host_TesteGeracao_s->individuo[iIndividuo].idx_Pai = idx_Pai;
 		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].idx_Pai =\t%d", host_TesteGeracao_s->individuo[iIndividuo].idx_Pai);
 		
 		idx_Mae = Randomico_int(0, parametrosGA->numIndividuos - 1);
 		//printf("\nCrossOver1Ponto_serial\t"); printf("idx_Mae =\t%d", idx_Mae);
-		//host_TesteGeracao_s->individuo[iIndividuo].idx_Mae = idx_Mae;
+		host_TesteGeracao_s->individuo[iIndividuo].idx_Mae = idx_Mae;
 		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].idx_Mae =\t%d", host_TesteGeracao_s->individuo[iIndividuo].idx_Mae);
 
 		Pai = &g0->individuo[idx_Pai];
@@ -1185,34 +1181,30 @@ void CrossOver2Pontos_serial(	struct generation *g0,
 
 		p_aux = (float)((float)rand() / (float)RAND_MAX);
 		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("p_aux =\t%f", p_aux);
-		//host_TesteGeracao_s->individuo[iIndividuo].p = p_aux;
+		host_TesteGeracao_s->individuo[iIndividuo].p = p_aux;
 		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].p =\t%f", host_TesteGeracao_s->individuo[iIndividuo].p);
 
 		f = -1.0F;
 		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("f =\t%f", f);
-		//host_TesteGeracao_s->individuo[iIndividuo].f = f;
+		host_TesteGeracao_s->individuo[iIndividuo].f = f;
 		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].f =\t%f", host_TesteGeracao_s->individuo[iIndividuo].f);
 
+		// Com a utilização de 'g1->individuo[iIndividuo].pontos_de_corte[0]'
+		// no segundo Randomico eu garanto que ponto1 >= ponto2.
+		// Assim, não preciso de código para ordenação.
 		g1->individuo[iIndividuo].pontos_de_corte[0] = Randomico_int(0, (parametrosGA->numGenes-1));
-		g1->individuo[iIndividuo].pontos_de_corte[1] = Randomico_int(0, (parametrosGA->numGenes-1));
+		g1->individuo[iIndividuo].pontos_de_corte[1] = Randomico_int(g1->individuo[iIndividuo].pontos_de_corte[0], (parametrosGA->numGenes-1));
 
-		// Ordena em ordem crescente os pontos de corte
-		unsigned short int int_aux = -999999;
-		if (g1->individuo[iIndividuo].pontos_de_corte[0] > g1->individuo[iIndividuo].pontos_de_corte[1]) {
-			int_aux = g1->individuo[iIndividuo].pontos_de_corte[0];
-			g1->individuo[iIndividuo].pontos_de_corte[0] = g1->individuo[iIndividuo].pontos_de_corte[1];
-			g1->individuo[iIndividuo].pontos_de_corte[1] = int_aux;
-		}
 		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("ponto_de_corte =\t%d", ponto_de_corte);
-		//host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0] = ponto_de_corte;
+		host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0] = g1->individuo[iIndividuo].pontos_de_corte[0];
 		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0] =\t%d", host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0]);
-		//host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1] = 0;
+		host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1] = g1->individuo[iIndividuo].pontos_de_corte[1];
 		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1] =\t%d", host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1]);
 	
 		if (p_aux <= parametrosGA->probCrossOver) {
 			
 			f = (float)((float)rand()/(float)RAND_MAX);
-			//host_TesteGeracao_s->individuo[iIndividuo].f = f;			
+			host_TesteGeracao_s->individuo[iIndividuo].f = f;			
 
 			for (iGene = 0; iGene < g1->individuo[iIndividuo].pontos_de_corte[0]; iGene++) {
 				g1->individuo[iIndividuo    ].gene[iGene] = Pai->gene[iGene];				
@@ -1226,7 +1218,13 @@ void CrossOver2Pontos_serial(	struct generation *g0,
 			for (iGene = g1->individuo[iIndividuo].pontos_de_corte[1]; iGene < parametrosGA->numGenes; iGene++) {
 				g1->individuo[iIndividuo    ].gene[iGene] = Pai->gene[iGene];				
 			}
-
+		}
+		else {
+			// Se não acontece o crossover, o mesmo indivíduo da 
+			// geração anterior é passado pra próxima.
+			for (iGene = 0; iGene < parametrosGA->numGenes; iGene++) {
+				g1->individuo[iIndividuo].gene[iGene] =	g0->individuo[iIndividuo].gene[iGene];			
+			}
 		}
 	}
 }
@@ -1486,6 +1484,7 @@ void testeCrossOver_serial(	unsigned int flag_Momento,
 		unsigned int iIndividuo;
 
 		printf("\n");	printf("iIndividuo");
+		printf("\t");	printf("idx_Pai");
 		printf("\t");	printf("idx_Mae");
 		printf("\t");	printf("p");
 		printf("\t");	printf("f");
@@ -1494,6 +1493,7 @@ void testeCrossOver_serial(	unsigned int flag_Momento,
 
 		for (iIndividuo = 0; iIndividuo < host_ParametrosGA->numIndividuos; iIndividuo++) {
 			printf("\n");	printf("%d", iIndividuo);
+			printf("\t");	printf("%d", host_testeGeracao->individuo[iIndividuo].idx_Pai);
 			printf("\t");	printf("%d", host_testeGeracao->individuo[iIndividuo].idx_Mae);
 			printf("\t");	printf("%f", host_testeGeracao->individuo[iIndividuo].p);
 			printf("\t");	printf("%f", host_testeGeracao->individuo[iIndividuo].f);

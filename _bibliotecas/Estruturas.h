@@ -1,6 +1,6 @@
 const unsigned short int
-	constNumGeracoes = 10000,
-	constNumGenes = 100, // Tamanho do cromossomo
+	constNumGeracoes = 10,
+	constNumGenes = 50, // Tamanho do cromossomo
 // ---------------------------------------------------------------------
 	constNumIndividuos = 100, // Tamanho da população
 // ---------------------------------------------------------------------
@@ -8,7 +8,7 @@ const unsigned short int
 	const_qtde_pontos_de_corte = 1;
 
 const float
-	const_probCrossOver = 0.700000F,
+	const_probCrossOver = 0.000000F,
 	const_probMutacao = 0.30000F,
 	const_intensidadeMutacao = 0.200000F,
 	constLambda = 0.001F,
@@ -58,6 +58,7 @@ struct parametros_Metodo {
 struct individuo_s {
 	unsigned int				teste_iIndividuo_para_Torneio[const_Tamanho_torneio];
 	int							iIndividuo_Vencedor;
+	unsigned int				idx_Pai;
 	unsigned int				idx_Mae;
 	float							p;
 	float							f;

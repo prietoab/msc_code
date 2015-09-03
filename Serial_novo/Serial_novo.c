@@ -87,7 +87,8 @@ int main(void) {
 
 		testeCrossOver_serial(0, &geracao[1], &parametrosGA, &host_testeGeracao_s);
 		time_i = clock();
-		CrossOver1Ponto_serial(&geracao[1], &geracao[0], &parametrosGA); //, &host_testeGeracao_s);
+		//CrossOver1Ponto_serial(&geracao[1], &geracao[0], &parametrosGA); //, &host_testeGeracao_s);
+		CrossOver2Pontos_serial(&geracao[1], &geracao[0], &parametrosGA, &host_testeGeracao_s);
 		time_f = clock();
 		//imprimeTempo(1, 0, 0, iGeracao, 6, 2, time_i, time_f);
 		testeCrossOver_serial(1, &geracao[0], &parametrosGA, &host_testeGeracao_s);
