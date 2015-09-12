@@ -1,18 +1,20 @@
+const unsigned long
+	constNumGeracoes = 1000000;
+
 const unsigned short int
-	constNumGeracoes = 10,
 	constNumGenes = 50, // Tamanho do cromossomo
 // ---------------------------------------------------------------------
-	constNumIndividuos = 100, // Tamanho da população
+	constNumIndividuos = 20, // Tamanho da população
 // ---------------------------------------------------------------------
 	const_Tamanho_torneio = 2,
 	const_qtde_pontos_de_corte = 1;
 
 const float
-	const_probCrossOver = 0.000000F,
+	const_probCrossOver = 0.800000F,
 	const_probMutacao = 0.30000F,
 	const_intensidadeMutacao = 0.200000F,
-	constLambda = 0.001F,
-	const_rho_minimo = 0.2F;
+	constLambda = 0.006F,
+	const_rho_minimo = 60.0F;
 
 struct individual {
 	float							cociente_Rayleigh;
@@ -30,6 +32,9 @@ struct individual {
 struct generation {
 	float							sumFitness;
 	float							FitnessMedio;
+	float							rhoMedio;
+	float							sumRho;
+	float							difRho;
 	float							Maior_fitness;
 	float							Melhor_cociente_Rayleigh;
 	unsigned short int		idxMelhorIndividuo;
@@ -39,7 +44,6 @@ struct generation {
 struct parametros {
 	unsigned short int		numGenes;
 	unsigned short int		numIndividuos;
-	unsigned short int		numGeracoes;
 	float							probCrossOver;
 	float							probMutacao;
 	float							intensidadeMutacao;
@@ -86,7 +90,6 @@ void inicializa_Parametros(struct parametros *parametrosGA,
 
 	parametrosGA->numGenes = constNumGenes;
 	parametrosGA->numIndividuos = constNumIndividuos;
-	parametrosGA->numGeracoes = constNumGeracoes;
 	parametrosGA->probCrossOver = const_probCrossOver;
 	parametrosGA->probMutacao = const_probMutacao;
 	parametrosGA->intensidadeMutacao = const_intensidadeMutacao;
@@ -111,7 +114,7 @@ void inicializa_Parametros(struct parametros *parametrosGA,
 	printf("+=====================================================+\n");
 	printf("| Tamanho do cromossomo ...........: %04d              \n", parametrosGA->numGenes);
 	printf("| Numero de individuos por geracao : %04d              \n", parametrosGA->numIndividuos);
-	printf("| Numero maximo de geracoes .......: %04d              \n", parametrosGA->numGeracoes);
+	printf("| Numero maximo de geracoes .......: %04d              \n", constNumGeracoes);
 	//printf("| Máximo gene (populaão inicial) ..: %f              \n", parametrosGA.vlrMaximoGene);
 	printf("| Seleção? ........................: Sim               \n");
 	printf("|    Metodo de selecao ............: Torneio           \n");
@@ -155,7 +158,7 @@ void testa_inicializa_Parametros(void) {
 	printf("+=====================================================+\n");
 	printf("| Tamanho do cromossomo ...........: %04d              \n", parametros_GA.numGenes);
 	printf("| Numero de individuos por geracao : %04d              \n", parametros_GA.numIndividuos);
-	printf("| Numero maximo de geracoes .......: %04d              \n", parametros_GA.numGeracoes);
+	printf("| Numero maximo de geracoes .......: %04d              \n", constNumGeracoes);
 	//printf("| Máximo gene (populaão inicial) ..: %f              \n", parametros_GA.vlrMaximoGene);
 	printf("| Seleção? ........................: Sim               \n");
 	printf("|    Metodo de selecao ............: Torneio           \n");

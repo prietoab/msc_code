@@ -729,6 +729,8 @@ void Fitness_Serial(
 	unsigned short int	iIndividuo;
 	//unsigned short int		iGene;
 
+	geracao->rhoMedio = -1.0F;
+	geracao->sumRho = 0.0F;
 	geracao->FitnessMedio = -1.0F;
 	geracao->Maior_fitness = -1.0F;
 	geracao->sumFitness = 0.0F;
@@ -741,6 +743,8 @@ void Fitness_Serial(
 											hamiltoniano,
 											ordem_hamiltoniano,
 											&geracao->individuo[iIndividuo].cociente_Rayleigh);
+
+		geracao->sumRho = geracao->sumRho + geracao->individuo[iIndividuo].cociente_Rayleigh;
 
 		Gradiente_de_Rho(	hamiltoniano,
 								ordem_hamiltoniano,
@@ -757,10 +761,10 @@ void Fitness_Serial(
 		geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado = pow( (geracao->individuo[iIndividuo].cociente_Rayleigh - rho_minimo) ,2);
 		
 		// Fitness só com o grad rho
-		geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].grad_elevado_ao_quadrado));
+		//geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].grad_elevado_ao_quadrado));
 
 		// Fitness só com o rho - rho_0 ao quadrado
-		//geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado));
+		geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado));
 
 		// Fitness completo
 		//geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(0.01*geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado + geracao->individuo[iIndividuo].grad_elevado_ao_quadrado));
@@ -775,6 +779,8 @@ void Fitness_Serial(
 		}
 	}
 	
+	geracao->rhoMedio = geracao->sumRho / parametrosGA->numIndividuos;
+	geracao->difRho = abs(geracao->rhoMedio - const_rho_minimo);
 	geracao->FitnessMedio = geracao->sumFitness / parametrosGA->numIndividuos;
 
 }
@@ -1245,6 +1251,7 @@ void Mutacao_Serial(	struct generation *geracao,
 	unsigned short int L;
 	int termo_do_L;
 	float r, pAux;
+	float intensidadeMutacao = 10*geracao->Maior_fitness;
 
 	for (iIndividuo = 0; iIndividuo < parametrosGA->numIndividuos; iIndividuo++) {
 		
@@ -1261,7 +1268,7 @@ void Mutacao_Serial(	struct generation *geracao,
 					// randômico inteiro. Nada é dito sobre os limites
 					// inferior ou superior de L. Decidi arbitrariamente
 					// que L = (0, 10].
-				r = (float)((float)rand() / (float)RAND_MAX);
+				r = (float)((float)rand() / (float)RAND_MAX) + 0.000002;
 				//host_testeGeracao->individuo[iIndividuo].gene_r[iGene] = r;
 					// r é um número randômico entre zero e 1. Como
 					// rand() = (0, RAND_MAX), a expressão acima funciona
@@ -1270,11 +1277,12 @@ void Mutacao_Serial(	struct generation *geracao,
 				termo_do_L = (int)pow((float)(-1),(int)L);
 				//host_testeGeracao->individuo[iIndividuo].gene_termo_do_L[iGene] = termo_do_L;
 					// é o (-1) elevado ao L. Só pode ser + ou - 1,
-					// portanto, um inteiros.
+					// portanto, um inteiro.
 
 				geracao->individuo[iIndividuo].gene[iGene] =
 						geracao->individuo[iIndividuo].gene[iGene] +
-						(float)(termo_do_L * r * parametrosGA->intensidadeMutacao);
+						(float)(termo_do_L * r * intensidadeMutacao);
+						//(float)(termo_do_L * r * parametrosGA->intensidadeMutacao);
 								// parametrosGA->intensidadeMutacao é o 
 								// DELTA da equação 10 do artigo.
 			}
@@ -1577,7 +1585,7 @@ unsigned short int imprimeComportamentoFitness(
 							unsigned short int cod_Maquina,
 							unsigned short int cod_tipoPrograma,
 							unsigned short int cod_Tipo_Fitness,
-							unsigned short int parm_iGeracao,
+							unsigned long	int parm_iGeracao,
 							struct generation *host_Geracao,
 							struct parametros_Metodo *host_parametros_Metodo) {
 //---------------------------------------------------------------------------------------
@@ -1591,6 +1599,8 @@ unsigned short int imprimeComportamentoFitness(
 		printf("\t"); printf("Tipo Fitness");
 		printf("\t"); printf("Lambda");
 		printf("\t"); printf("Rho minimo");
+		printf("\t"); printf("Rho medio");
+		printf("\t"); printf("Diferenca Rho");
 		printf("\t"); printf("iGeracao");				// parm_iGeracao
 		printf("\t"); printf("Fitness Medio");
 		printf("\t"); printf("Maior Fitness");
@@ -1642,6 +1652,8 @@ unsigned short int imprimeComportamentoFitness(
 		printf("\t"); printf("%s", str_Fitness);
 		printf("\t"); printf("%f", host_parametros_Metodo->lambda);
 		printf("\t"); printf("%f", host_parametros_Metodo->rho_minimo);
+		printf("\t"); printf("%f", host_Geracao->rhoMedio);
+		printf("\t"); printf("%f", host_Geracao->difRho);
 		printf("\t"); printf("%d", parm_iGeracao);
 		printf("\t"); printf("%f", host_Geracao->FitnessMedio);
 		printf("\t"); printf("%f", host_Geracao->Maior_fitness);

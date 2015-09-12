@@ -76,7 +76,7 @@ unsigned short int imprimeTempo(
 							unsigned short int flag_Cabecalho,
 							unsigned short int cod_Maquina,
 							unsigned short int cod_tipoPrograma,
-							unsigned short int idx_Geracao,
+							unsigned long	int idx_Geracao,
 							unsigned short int cod_Funcao,
 							unsigned short int cod_TipoMarcacao,
 							clock_t clock_Inicio,

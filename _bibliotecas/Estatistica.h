@@ -1,13 +1,13 @@
 // -----------------------------------------------------------------------
-double mediaRho(	struct generation *host_geracao,
+float mediaRho(	struct generation *host_geracao,
 						struct parametros *host_parametrosGA) {
 // -----------------------------------------------------------------------
-	double somaRho = 0;
-	double mediaRho = 0;
+	float somaRho = 0;
+	float mediaRho = 0;
 	unsigned short int iIndividuos = 0;
 
 	for (iIndividuos = 0; iIndividuos < host_parametrosGA->numIndividuos; iIndividuos++) {
-		somaRho = somaRho + (double)host_geracao->individuo[iIndividuos].cociente_Rayleigh;
+		somaRho = somaRho + (float)host_geracao->individuo[iIndividuos].cociente_Rayleigh;
 	}
 
 	mediaRho = somaRho / host_parametrosGA->numIndividuos;

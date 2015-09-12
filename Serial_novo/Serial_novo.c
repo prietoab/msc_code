@@ -27,7 +27,7 @@ int main(void) {
 	struct parametros_Metodo	parametrosMetodo;
 	struct generation				geracao[2];
 	struct testeGeracao_s		host_testeGeracao_s;
-	unsigned short int			iGeracao;
+	unsigned long int				iGeracao;
 	float								*Hamiltoniano;
 
 	inicializa_Parametros(&parametrosGA, &parametrosMetodo);
@@ -47,8 +47,8 @@ int main(void) {
 	time_i = clock();
 	GeraPopulacaoInicial_serial(&geracao[0], &parametrosGA, &host_testeGeracao_s);
 	//GeraPopInicial_vetsOrtonormais(&geracao[0], &parametrosGA);
-	printf("\nPOPULACAO INICIAL:\n\n");
-	imprimeGeracao(&geracao[0],&parametrosGA);
+	//printf("\nPOPULACAO INICIAL:\n\n");
+	//imprimeGeracao(&geracao[0],&parametrosGA);
 	time_f = clock();
 	//imprimeTempo(1, 0, 0, 0, 2, 2, time_i, time_f);
 
@@ -61,9 +61,13 @@ int main(void) {
 	//imprimeTempo(1, 0, 0, 0, 3, 2, time_i, time_f);
 
 	// Cabeçalho dos dados de comportamento do fitness
-	//imprimeComportamentoFitness(0, 0, 0, 0, 0, &geracao[0], &parametrosMetodo);
+	imprimeComportamentoFitness(0, 0, 0, 0, 0, &geracao[0], &parametrosMetodo);
 
-	for (iGeracao = 0; iGeracao < parametrosGA.numGeracoes; iGeracao++) {
+	iGeracao = 0;
+	int flagAtingiuTolerancia = 0; // falso.
+	float erroAbsolutoNoRho = 1.0F, toleranciaErroRho = (float)0.000001;
+
+	while (iGeracao < constNumGeracoes) {
 		
 		time_i = clock();
 		Fitness_Serial(	&geracao[0],
@@ -75,8 +79,15 @@ int main(void) {
 								MatrizIdentidade);
 		time_f = clock();
 		//imprimeTempo(1, 0, 0, iGeracao, 4, 2, time_i, time_f);
-		//imprimeComportamentoFitness(1, 0, 0, 0, iGeracao, &geracao[0], &parametrosMetodo);
 
+		erroAbsolutoNoRho = geracao[0].difRho;
+		
+		imprimeComportamentoFitness(1, 0, 0, 0, iGeracao, &geracao[0], &parametrosMetodo);
+
+		if (erroAbsolutoNoRho <= toleranciaErroRho) {
+			flagAtingiuTolerancia = 1; // verdadeiro
+			break; // sai do while
+		}
 
 		time_i = clock();
 		//testeSelecao_serial(0, &geracao[0], &parametrosGA, &host_testeGeracao_s);
@@ -85,13 +96,13 @@ int main(void) {
 		time_f = clock();
 		//imprimeTempo(1, 0, 0, iGeracao, 5, 2, time_i, time_f);
 
-		testeCrossOver_serial(0, &geracao[1], &parametrosGA, &host_testeGeracao_s);
+		//testeCrossOver_serial(0, &geracao[1], &parametrosGA, &host_testeGeracao_s);
 		time_i = clock();
 		//CrossOver1Ponto_serial(&geracao[1], &geracao[0], &parametrosGA); //, &host_testeGeracao_s);
 		CrossOver2Pontos_serial(&geracao[1], &geracao[0], &parametrosGA, &host_testeGeracao_s);
 		time_f = clock();
 		//imprimeTempo(1, 0, 0, iGeracao, 6, 2, time_i, time_f);
-		testeCrossOver_serial(1, &geracao[0], &parametrosGA, &host_testeGeracao_s);
+		//testeCrossOver_serial(1, &geracao[0], &parametrosGA, &host_testeGeracao_s);
 
 		//testeMutacao(0,&geracao[0],&parametrosGA, &host_testeGeracao_s);
 		time_i = clock();
@@ -99,20 +110,24 @@ int main(void) {
 		time_f = clock();
 		//imprimeTempo(1, 0, 0, iGeracao, 7, 2, time_i, time_f);
 		//testeMutacao(1,&geracao[0],&parametrosGA, &host_testeGeracao_s);
+
+		iGeracao++;
 	}
 	
-	time_i = clock();
-	Fitness_Serial(	&geracao[0],
-							&parametrosGA,
-							Hamiltoniano,
-							parametrosGA.numGenes,
-							parametrosMetodo.lambda,
-							parametrosMetodo.rho_minimo,
-							MatrizIdentidade);
-	time_f = clock();
-	//imprimeTempo(1, 0, 0, iGeracao, 4, 2, time_i, time_f);
-	//imprimeComportamentoFitness(1, 0, 0, 0, iGeracao, &geracao[0], &parametrosMetodo);
-	
+	if (flagAtingiuTolerancia == 0) {
+		time_i = clock();
+		Fitness_Serial(	&geracao[0],
+								&parametrosGA,
+								Hamiltoniano,
+								parametrosGA.numGenes,
+								parametrosMetodo.lambda,
+								parametrosMetodo.rho_minimo,
+								MatrizIdentidade);
+		time_f = clock();
+		//imprimeTempo(1, 0, 0, iGeracao, 4, 2, time_i, time_f);
+		imprimeComportamentoFitness(1, 0, 0, 0, iGeracao, &geracao[0], &parametrosMetodo);
+	}
+
 	time_pgm_f = clock();
 	imprimeTempo(1, 0, 0, iGeracao, 0, 2, time_pgm_i, time_pgm_f);
 
