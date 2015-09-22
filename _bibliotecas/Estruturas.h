@@ -19,7 +19,7 @@ struct individual {
 	float							CtC;
 	float							inverso_de_CtC;
 	float							fitness;
-	unsigned short int		*pontos_de_corte; // alocar global_qtde_pontos_de_corte
+	unsigned short int		pontos_de_corte[2]; // fixo
 	float							*gene; // alocar constNumGenes
 	float							*gradRho; // alocar constNumGenes
 };

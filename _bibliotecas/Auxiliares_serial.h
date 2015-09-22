@@ -217,4 +217,18 @@ void testa_imprimeTempo() {
 		}
 	}
 }
+//---------------------------------------------------------------------------------------
+void criaIndividuosNaGeracao(		struct parametros *parametrosGA,
+											struct generation *geracao) {
+//---------------------------------------------------------------------------------------
+	unsigned short int j, qtdeInd, qtdeGenes;
 
+	qtdeInd = parametrosGA->numIndividuos;
+	qtdeGenes = parametrosGA->numGenes;
+
+	geracao->individuo = (struct individual *)malloc(qtdeInd*sizeof(struct individual));
+	for (j = 0; j < qtdeInd; j++) {
+		geracao->individuo[j].gene = (float *)malloc(qtdeGenes*sizeof(float));
+		geracao->individuo[j].gradRho = (float *)malloc(qtdeGenes*sizeof(float));
+	}
+}
