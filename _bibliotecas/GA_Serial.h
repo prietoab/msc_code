@@ -1,3 +1,4 @@
+
 //=========================================================================================================
 void Calcula_Quociente_Rayleigh(	float *VetorC,
 											float *Hamiltoniano,
@@ -719,6 +720,7 @@ void testa_Gera_Matriz_de_Coope_LinhaColuna(void) {
 void Fitness_Serial(
 		struct generation *geracao,
 		struct parametros *parametrosGA,
+		struct parametros_Metodo *parms_Metodo,
 		float *hamiltoniano,
 		const unsigned short int ordem_hamiltoniano,
 		float lambda,
@@ -780,7 +782,7 @@ void Fitness_Serial(
 	}
 	
 	geracao->rhoMedio = geracao->sumRho / parametrosGA->numIndividuos;
-	geracao->difRho = abs(geracao->rhoMedio - const_rho_minimo);
+	geracao->difRho = abs(geracao->rhoMedio - parms_Metodo->rho_minimo);
 	geracao->FitnessMedio = geracao->sumFitness / parametrosGA->numIndividuos;
 
 }
@@ -788,11 +790,14 @@ void Fitness_Serial(
 //=========================================================================================================
 void testa_Fitness_Serial(void) {
 //=========================================================================================================
+	//TODO: corrigir parâmetros do Fitness_Serial
+
+	/*
 	struct generation geracao;
 	struct parametros parametrosGA;
 	
-	parametrosGA.numGenes = constNumGenes;
-	parametrosGA.numIndividuos = constNumIndividuos;
+	parametrosGA.numGenes = 50;
+	parametrosGA.numIndividuos = 10;
 
 	float *H;
 	H = (float *)malloc(parametrosGA.numGenes*parametrosGA.numGenes*sizeof(float));
@@ -822,9 +827,9 @@ void testa_Fitness_Serial(void) {
 	printf("\n"); printf("Geracao sem autovalores = ");
 	imprimeGeracao(&geracao, &parametrosGA);
 	
-	/* ------------------------------
-		INICIALIZAÇÃO DOS VETORES COM OS GENES DOS AUTOVETORES
-	   -------------------------------                         */
+	// ------------------------------
+	//	INICIALIZAÇÃO DOS VETORES COM OS GENES DOS AUTOVETORES
+	//   -------------------------------                         
 
 	// Indivíduo 0
 	geracao.individuo[0].gene[0] = 0.9780472F;
@@ -992,7 +997,7 @@ void testa_Fitness_Serial(void) {
 
 	imprimeGeracao(&geracao, &parametrosGA);
 
-	
+	*/
 }
 
 // =========================================================================================================
@@ -1319,7 +1324,7 @@ void GeraPopulacaoInicial_serial(
 		GeracaoInicial->individuo[iIndividuo].Numerador = -1.0F;
 		GeracaoInicial->individuo[iIndividuo].rho_menos_rho0_ao_quadrado = -1.0F;
 		
-		qtdePontosCorte = const_qtde_pontos_de_corte;
+		qtdePontosCorte = parametrosGA->qtde_Pontos_de_Corte;
 		for (iPontoCorte = 0; iPontoCorte < qtdePontosCorte; iPontoCorte++) {
 			GeracaoInicial->individuo[iIndividuo].pontos_de_corte[iPontoCorte] = 11111;
 		}
@@ -1369,7 +1374,7 @@ void GeraPopInicial_vetsOrtonormais(
 		GeracaoInicial->individuo[iIndividuo].Numerador = -1.0F;
 		GeracaoInicial->individuo[iIndividuo].rho_menos_rho0_ao_quadrado = -1.0F;
 		
-		qtdePontosCorte = const_qtde_pontos_de_corte;
+		qtdePontosCorte = parametrosGA->qtde_Pontos_de_Corte;
 		for (iPontoCorte = 0; iPontoCorte < qtdePontosCorte; iPontoCorte++) {
 			GeracaoInicial->individuo[iIndividuo].pontos_de_corte[iPontoCorte] = 11111;
 		}
@@ -1417,13 +1422,14 @@ void teste_GeraPopInicial_vetsOrtonormais(void) {
 //---------------------------------------------------------------------------------------
 void teste_GeraPopulacaoInicial_serial(void) {
 //---------------------------------------------------------------------------------------
+	//TODO: deve ser alterada para inicialização manua dos parâmetros
 
 	struct generation				geracaoTeste;
 	struct parametros				parametrosGA;
-	struct parametros_Metodo	parametrosMetodo;
+	//struct parametros_Metodo	parametrosMetodo;
 	struct testeGeracao_s		host_testeGeracao_s;
 	
-	inicializa_Parametros(&parametrosGA, &parametrosMetodo);
+	//inicializa_Parametros(&parametrosGA, &parametrosMetodo);
 	GeraPopulacaoInicial_serial(&geracaoTeste, &parametrosGA, &host_testeGeracao_s);
 
 	imprimeGeracao(&geracaoTeste, &parametrosGA);
@@ -1587,7 +1593,9 @@ unsigned short int imprimeComportamentoFitness(
 							unsigned short int cod_Tipo_Fitness,
 							unsigned long	int parm_iGeracao,
 							struct generation *host_Geracao,
-							struct parametros_Metodo *host_parametros_Metodo) {
+							struct parametros_Metodo *host_parametros_Metodo,
+							struct parametros *host_parametrosGA,
+							struct parametrosPrograma *host_parametrosPrograma) {
 //---------------------------------------------------------------------------------------
 
 	if (flag_Cabecalho == 0) {
@@ -1646,9 +1654,9 @@ unsigned short int imprimeComportamentoFitness(
 
 		printf("\n"); printf("%s", strMaquina);			
 		printf("\t"); printf("%s", str_TipoPrograma);	
-		printf("\t"); printf("%d", constNumGeracoes);	
-		printf("\t"); printf("%d", constNumIndividuos);	
-		printf("\t"); printf("%d", constNumGenes);		
+		printf("\t"); printf("%d", host_parametrosPrograma->parmQtdeMaxGeracoes);	
+		printf("\t"); printf("%d", host_parametrosGA->numIndividuos);	
+		printf("\t"); printf("%d", host_parametrosGA->numGenes);		
 		printf("\t"); printf("%s", str_Fitness);
 		printf("\t"); printf("%f", host_parametros_Metodo->lambda);
 		printf("\t"); printf("%f", host_parametros_Metodo->rho_minimo);

@@ -1,3 +1,4 @@
+
 //---------------------------------------------------------------------------------------
 void inicializa_Semente(void) {
 //---------------------------------------------------------------------------------------
@@ -80,7 +81,10 @@ unsigned short int imprimeTempo(
 							unsigned short int cod_Funcao,
 							unsigned short int cod_TipoMarcacao,
 							clock_t clock_Inicio,
-							clock_t clock_Fim) {
+							clock_t clock_Fim,
+							struct parametros *parametrosGA,
+							struct parametros_Metodo *parametrosMetodo,
+							struct parametrosPrograma *parmsPrograma) {
 //---------------------------------------------------------------------------------------
 
 	if (flag_Cabecalho == 0) {
@@ -171,9 +175,9 @@ unsigned short int imprimeTempo(
 
 		printf("\n"); printf("%s", strMaquina);			
 		printf("\t"); printf("%s", str_TipoPrograma);	
-		printf("\t"); printf("%d", constNumGeracoes);	
-		printf("\t"); printf("%d", constNumIndividuos);	
-		printf("\t"); printf("%d", constNumGenes);		
+		printf("\t"); printf("%d", parmsPrograma->parmQtdeMaxGeracoes);	
+		printf("\t"); printf("%d", parametrosGA->numIndividuos);	
+		printf("\t"); printf("%d", parametrosGA->numGenes);		
 		printf("\t"); printf("%d", idx_Geracao);		 															
 		printf("\t"); printf("%s", str_Funcao);		 															
 		printf("\t"); printf("%s", str_tipoMarcacao);
@@ -186,7 +190,7 @@ unsigned short int imprimeTempo(
 //---------------------------------------------------------------------------------------
 void testa_imprimeTempo() {
 //---------------------------------------------------------------------------------------
-	
+	//TODO: corrigir parâmetros da função imprimeTempo	
 	unsigned short int	int_Cabecalho = 999,
 								iMaquina = 9999,
 								iTipoPrograma = 999,
@@ -200,14 +204,14 @@ void testa_imprimeTempo() {
 	tempo_fim = 70;
 
 	int_Cabecalho = 0;
-	imprimeTempo(int_Cabecalho, iMaquina, iTipoPrograma, 0, iFuncao, iMarcacao, clock(), clock());
+	//imprimeTempo(int_Cabecalho, iMaquina, iTipoPrograma, 0, iFuncao, iMarcacao, clock(), clock());
 
 	int_Cabecalho = 1;
 	for (iMaquina = 0; iMaquina < 2; iMaquina++) {
 		for (iTipoPrograma = 0; iTipoPrograma < 2; iTipoPrograma++) {
 			for (iFuncao = 0; iFuncao < 8; iFuncao++) {
 				for (iMarcacao = 0; iMarcacao < 3; iMarcacao++) {
-					imprimeTempo(int_Cabecalho, iMaquina, iTipoPrograma, 0, iFuncao, iMarcacao, tempo_inicio, tempo_fim);
+					//imprimeTempo(int_Cabecalho, iMaquina, iTipoPrograma, 0, iFuncao, iMarcacao, tempo_inicio, tempo_fim);
 				}
 			}
 		}

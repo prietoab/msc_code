@@ -1,3 +1,4 @@
+
 // -----------------------------------------------------------------------
 float mediaRho(	struct generation *host_geracao,
 						struct parametros *host_parametrosGA) {

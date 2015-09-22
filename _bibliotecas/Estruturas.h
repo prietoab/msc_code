@@ -1,21 +1,16 @@
-const unsigned long
-	constNumGeracoes = 1000000;
 
-const unsigned short int
-	constNumGenes = 50, // Tamanho do cromossomo
-// ---------------------------------------------------------------------
-	constNumIndividuos = 20, // Tamanho da população
-// ---------------------------------------------------------------------
-	const_Tamanho_torneio = 2,
-	const_qtde_pontos_de_corte = 1;
-
-const float
-	const_probCrossOver = 0.800000F,
-	const_probMutacao = 0.30000F,
-	const_intensidadeMutacao = 0.200000F,
-	constLambda = 0.006F,
-	const_rho_minimo = 60.0F;
-
+struct parametrosPrograma {
+	unsigned short int parmQtdeGenes;
+	unsigned long int parmQtdeMaxGeracoes;
+	unsigned short int parmQtdeIndividuos; // número de indivíduos por geração
+	char parmTamanhoTorneio;
+	float	parmProbCrossOver;
+	unsigned short int parmQtdePontosCorte;
+	float parmProbMutacao;
+	float parmIntensidadeMutacao;
+	float parmLambda;
+	float parmRhoMinimo;
+};
 struct individual {
 	float							cociente_Rayleigh;
 	float							grad_elevado_ao_quadrado;
@@ -24,9 +19,9 @@ struct individual {
 	float							CtC;
 	float							inverso_de_CtC;
 	float							fitness;
-	unsigned short int		pontos_de_corte[const_qtde_pontos_de_corte];
-	float							gene[constNumGenes];
-	float							gradRho[constNumGenes];
+	unsigned short int		*pontos_de_corte; // alocar global_qtde_pontos_de_corte
+	float							*gene; // alocar constNumGenes
+	float							*gradRho; // alocar constNumGenes
 };
 
 struct generation {
@@ -38,7 +33,7 @@ struct generation {
 	float							Maior_fitness;
 	float							Melhor_cociente_Rayleigh;
 	unsigned short int		idxMelhorIndividuo;
-	struct individual			individuo[constNumIndividuos];
+	struct individual			*individuo; // alocar constNumIndividuos;
 };
 
 struct parametros {
@@ -49,7 +44,7 @@ struct parametros {
 	float							intensidadeMutacao;
 	char							tamanho_torneio;
 	unsigned short int		qtde_Pontos_de_Corte;
-	float							vlrMaximoGene;
+//	float							vlrMaximoGene;
 };
 
 struct parametros_Metodo {
@@ -60,47 +55,46 @@ struct parametros_Metodo {
 
 // - testes seleçao e crossover - pode ser removido
 struct individuo_s {
-	unsigned int				teste_iIndividuo_para_Torneio[const_Tamanho_torneio];
+	unsigned int				*teste_iIndividuo_para_Torneio;
 	int							iIndividuo_Vencedor;
 	unsigned int				idx_Pai;
 	unsigned int				idx_Mae;
 	float							p;
 	float							f;
-	unsigned int				pontos_de_corte[const_qtde_pontos_de_corte];
-	unsigned int				i_Gene_Global[constNumGenes];
+	unsigned int				*pontos_de_corte;
+	unsigned int				i_Gene_Global; // alocar constNumGenes
 	unsigned int				Primeiro_Gene_Individuo_Global;
 	unsigned int				Ultimo_Gene_Individuo_Global;
 	unsigned int				Ponto_de_Corte_Individuo_Global;
 		// para o teste da mutação
-	unsigned short int		gene_L[constNumGenes];
-	int							gene_termo_do_L[constNumGenes];
-	float							gene_r[constNumGenes];
-	float							gene_pAux[constNumGenes];
+	unsigned short int		*gene_L; // alocar constNumGenes;
+	int							*gene_termo_do_L; // alocar constNumGenes;
+	float							*gene_r; // alocar constNumGenes;
+	float							*gene_pAux; // alocar constNumGenes
 };
 
 struct testeGeracao_s {
-	struct individuo_s		individuo[constNumIndividuos];
+	struct individuo_s		*individuo; // alocar constNumIndividuos
 };
 // - teste seleçao e crossover - pode ser removido
 
 //---------------------------------------------------------------------------------------
-void inicializa_Parametros(struct parametros *parametrosGA,
+void inicializa_Parametros(struct parametrosPrograma *parmsPgm,
+									struct parametros *parametrosGA,
 									struct parametros_Metodo *parametrosMetodo ) {
 //---------------------------------------------------------------------------------------
 
-	parametrosGA->numGenes = constNumGenes;
-	parametrosGA->numIndividuos = constNumIndividuos;
-	parametrosGA->probCrossOver = const_probCrossOver;
-	parametrosGA->probMutacao = const_probMutacao;
-	parametrosGA->intensidadeMutacao = const_intensidadeMutacao;
-	parametrosGA->qtde_Pontos_de_Corte = const_qtde_pontos_de_corte;
-	//parametrosGA->PontoDeCorte[0] = 0;
-	//parametrosGA->PontoDeCorte[1] = 0;
-	parametrosGA->tamanho_torneio = const_Tamanho_torneio;
-	parametrosGA->vlrMaximoGene = 0.1F;
+	parametrosGA->numGenes = parmsPgm->parmQtdeGenes;
+	parametrosGA->numIndividuos = parmsPgm->parmQtdeIndividuos;
+	parametrosGA->probCrossOver = parmsPgm->parmProbCrossOver;
+	parametrosGA->probMutacao = parmsPgm->parmProbMutacao;
+	parametrosGA->intensidadeMutacao = parmsPgm->parmIntensidadeMutacao;
+	parametrosGA->qtde_Pontos_de_Corte = parmsPgm->parmQtdePontosCorte;
+	parametrosGA->tamanho_torneio = parmsPgm->parmTamanhoTorneio;
+	//parametrosGA->vlrMaximoGene = 0.1F;
 
-	parametrosMetodo->lambda = constLambda;
-	parametrosMetodo->rho_minimo = const_rho_minimo;
+	parametrosMetodo->lambda = parmsPgm->parmLambda;
+	parametrosMetodo->rho_minimo = parmsPgm->parmRhoMinimo;
 
 	printf("\n");
 	printf("+=====================================================+\n");
@@ -114,8 +108,7 @@ void inicializa_Parametros(struct parametros *parametrosGA,
 	printf("+=====================================================+\n");
 	printf("| Tamanho do cromossomo ...........: %04d              \n", parametrosGA->numGenes);
 	printf("| Numero de individuos por geracao : %04d              \n", parametrosGA->numIndividuos);
-	printf("| Numero maximo de geracoes .......: %04d              \n", constNumGeracoes);
-	//printf("| Máximo gene (populaão inicial) ..: %f              \n", parametrosGA.vlrMaximoGene);
+	printf("| Numero maximo de geracoes .......: %04d              \n", parmsPgm->parmQtdeMaxGeracoes);
 	printf("| Seleção? ........................: Sim               \n");
 	printf("|    Metodo de selecao ............: Torneio           \n");
 	printf("|    Tamanho do Torneio ...........: %d                \n", parametrosGA->tamanho_torneio);
@@ -139,8 +132,14 @@ void inicializa_Parametros(struct parametros *parametrosGA,
 //---------------------------------------------------------------------------------------
 void testa_inicializa_Parametros(void) {
 //---------------------------------------------------------------------------------------
+	//TODO: alterar a inicialização de parâmetros
+
+	/*
+
 	struct parametros parametros_GA;
 	struct parametros_Metodo parametros_Metodo;
+
+	unsigned long int globalNumGeracoes = 1;
 
 	inicializa_Parametros(&parametros_GA, &parametros_Metodo);
 
@@ -158,8 +157,8 @@ void testa_inicializa_Parametros(void) {
 	printf("+=====================================================+\n");
 	printf("| Tamanho do cromossomo ...........: %04d              \n", parametros_GA.numGenes);
 	printf("| Numero de individuos por geracao : %04d              \n", parametros_GA.numIndividuos);
-	printf("| Numero maximo de geracoes .......: %04d              \n", constNumGeracoes);
-	//printf("| Máximo gene (populaão inicial) ..: %f              \n", parametros_GA.vlrMaximoGene);
+	printf("| Numero maximo de geracoes .......: %04d              \n", globalNumGeracoes);
+	printf("| Máximo gene (populaão inicial) ..: %f              \n", parametros_GA.vlrMaximoGene);
 	printf("| Seleção? ........................: Sim               \n");
 	printf("|    Metodo de selecao ............: Torneio           \n");
 	printf("|    Tamanho do Torneio ...........: %d                \n", parametros_GA.tamanho_torneio);
@@ -178,6 +177,7 @@ void testa_inicializa_Parametros(void) {
 	printf("| CLOCKS_PER_SEC...................: %d                \n", CLOCKS_PER_SEC);
 	printf("+=====================================================+\n\n");
 
+	*/
 }
 
 //=======================================================================================

@@ -10,8 +10,42 @@
 #include "C:\Users\Comum\Documents\Unicamp\Mestrado\Programação\_bibliotecas\Estatistica.h"
 
 //==========================================================================
-int main(void) {
+int main(int argc, char *argv[]) {
 //==========================================================================
+
+	// Pega os parâmetros
+	parametrosPrograma parmsPrograma;
+
+	//parmsPrograma.parmNomeDoPrograma = argv[0];
+	// Parâmetros fixos
+	parmsPrograma.parmQtdeGenes = atoi(argv[1]);
+	parmsPrograma.parmQtdeMaxGeracoes = atoi(argv[2]);
+	parmsPrograma.parmQtdeIndividuos = atoi(argv[3]); // número de indivíduos por geração
+	parmsPrograma.parmTamanhoTorneio = atoi(argv[4]);
+	parmsPrograma.parmProbCrossOver = (float)atof(argv[5])/100;
+	parmsPrograma.parmQtdePontosCorte = atoi(argv[6]);
+	parmsPrograma.parmProbMutacao = (float)atof(argv[7])/100;
+	parmsPrograma.parmIntensidadeMutacao = (float)atof(argv[8])/10;
+	parmsPrograma.parmLambda = (float)atof(argv[9]);
+	parmsPrograma.parmRhoMinimo = (float)atof(argv[10]);
+
+	//printf("parmsPrograma.parmNomeDoPrograma = %c	\n", parmsPrograma.parmNomeDoPrograma);
+	// Parâmetros variáveis
+	printf("parmsPrograma.parmQtdeGenes = %d	\n", parmsPrograma.parmQtdeGenes);
+	printf("parmsPrograma.parmQtdeIndividuos = %d	\n", parmsPrograma.parmQtdeIndividuos);
+	printf("parmsPrograma.parmProbCrossOver = %f	\n", parmsPrograma.parmProbCrossOver);
+	printf("parmsPrograma.parmProbMutacao = %f	\n", parmsPrograma.parmProbMutacao);
+	printf("parmsPrograma.parmIntensidadeMutacao = %f	\n", parmsPrograma.parmIntensidadeMutacao);
+
+	// Parâmetros fixos
+	printf("\n");
+	printf("parmsPrograma.parmQtdeMaxGeracoes = %d	\n", parmsPrograma.parmQtdeMaxGeracoes);
+	printf("parmsPrograma.parmTamanhoTorneio = %d	\n", parmsPrograma.parmTamanhoTorneio);
+	printf("parmsPrograma.parmQtdePontosCorte = %d	\n", parmsPrograma.parmQtdePontosCorte);
+	printf("parmsPrograma.parmLambda = %f	\n", parmsPrograma.parmLambda);
+	printf("parmsPrograma.parmRhoMinimo = %f	\n", parmsPrograma.parmRhoMinimo);
+
+	return 0;
 
 	// Definição das variáveis utilizadas para marcar o tempo.
 	// São do tipo clock_t, pois marcarei diretamente o clock
@@ -25,12 +59,15 @@ int main(void) {
 	// Definição das estruturas e variáveis globais.
 	struct parametros				parametrosGA;
 	struct parametros_Metodo	parametrosMetodo;
+
+	// Alocando memória para as gerações
 	struct generation				geracao[2];
 	struct testeGeracao_s		host_testeGeracao_s;
 	unsigned long int				iGeracao;
 	float								*Hamiltoniano;
 
-	inicializa_Parametros(&parametrosGA, &parametrosMetodo);
+
+	inicializa_Parametros(&parmsPrograma, &parametrosGA, &parametrosMetodo);
 	inicializa_Semente();
 
 	// Imprime o cabecalho da marcação de tempo
@@ -61,17 +98,19 @@ int main(void) {
 	//imprimeTempo(1, 0, 0, 0, 3, 2, time_i, time_f);
 
 	// Cabeçalho dos dados de comportamento do fitness
-	imprimeComportamentoFitness(0, 0, 0, 0, 0, &geracao[0], &parametrosMetodo);
+	imprimeComportamentoFitness(	0, 0, 0, 0, 0, &geracao[0],
+											&parametrosMetodo, &parametrosGA, &parmsPrograma);
 
 	iGeracao = 0;
 	int flagAtingiuTolerancia = 0; // falso.
 	float erroAbsolutoNoRho = 1.0F, toleranciaErroRho = (float)0.000001;
 
-	while (iGeracao < constNumGeracoes) {
+	while (iGeracao < parmsPrograma.parmQtdeMaxGeracoes) {
 		
 		time_i = clock();
 		Fitness_Serial(	&geracao[0],
 								&parametrosGA,
+								&parametrosMetodo,
 								Hamiltoniano,
 								parametrosGA.numGenes,
 								parametrosMetodo.lambda,
@@ -82,7 +121,8 @@ int main(void) {
 
 		erroAbsolutoNoRho = geracao[0].difRho;
 		
-		imprimeComportamentoFitness(1, 0, 0, 0, iGeracao, &geracao[0], &parametrosMetodo);
+		imprimeComportamentoFitness(	1, 0, 0, 0, iGeracao, &geracao[0],
+												&parametrosMetodo, &parametrosGA, &parmsPrograma);
 
 		if (erroAbsolutoNoRho <= toleranciaErroRho) {
 			flagAtingiuTolerancia = 1; // verdadeiro
@@ -118,6 +158,7 @@ int main(void) {
 		time_i = clock();
 		Fitness_Serial(	&geracao[0],
 								&parametrosGA,
+								&parametrosMetodo,
 								Hamiltoniano,
 								parametrosGA.numGenes,
 								parametrosMetodo.lambda,
@@ -125,11 +166,13 @@ int main(void) {
 								MatrizIdentidade);
 		time_f = clock();
 		//imprimeTempo(1, 0, 0, iGeracao, 4, 2, time_i, time_f);
-		imprimeComportamentoFitness(1, 0, 0, 0, iGeracao, &geracao[0], &parametrosMetodo);
+		imprimeComportamentoFitness(	1, 0, 0, 0, iGeracao, &geracao[0],
+												&parametrosMetodo, &parametrosGA, &parmsPrograma);
 	}
 
 	time_pgm_f = clock();
-	imprimeTempo(1, 0, 0, iGeracao, 0, 2, time_pgm_i, time_pgm_f);
+	imprimeTempo(	1, 0, 0, iGeracao, 0, 2, time_pgm_i, time_pgm_f,
+						&parametrosGA, &parametrosMetodo, &parmsPrograma);
 
 	printf("\n"); printf("Geracao final:");
 	imprimeGeracao(&geracao[0], &parametrosGA);
