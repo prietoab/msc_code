@@ -17,15 +17,15 @@ int main(int argc, char *argv[]) {
 	parametrosPrograma parmsPrograma;
 	// coloquei na mão só pra testar a alocação de memória
 	parmsPrograma.parmQtdeGenes				= 50;
-	parmsPrograma.parmQtdeMaxGeracoes		= 5000;
+	parmsPrograma.parmQtdeMaxGeracoes		= 500000;
 	parmsPrograma.parmQtdeIndividuos			= 100; // número de indivíduos por geração
 	parmsPrograma.parmTamanhoTorneio			= 2;
 	parmsPrograma.parmProbCrossOver			= 0.8F;
 	parmsPrograma.parmQtdePontosCorte		= 2;
 	parmsPrograma.parmProbMutacao				= 0.3F;
 	parmsPrograma.parmIntensidadeMutacao	= 0.2F;
-	parmsPrograma.parmLambda					= 0.001F;
-	parmsPrograma.parmRhoMinimo				= 0.2F;
+	parmsPrograma.parmLambda					= 0.005F;
+	parmsPrograma.parmRhoMinimo				= 5.0F;
 
 	/*
 	parmsPrograma.parmQtdeGenes				= atoi(argv[1]);
