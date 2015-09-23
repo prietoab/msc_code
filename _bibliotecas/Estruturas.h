@@ -10,6 +10,7 @@ struct parametrosPrograma {
 	float parmIntensidadeMutacao;
 	float parmLambda;
 	float parmRhoMinimo;
+	float parmTolerancia;
 };
 struct individual {
 	float							cociente_Rayleigh;
@@ -30,6 +31,8 @@ struct generation {
 	float							rhoMedio;
 	float							sumRho;
 	float							difRho;
+	float							sumGradRho;
+	float							gradRhoMedio;
 	float							Maior_fitness;
 	float							Melhor_cociente_Rayleigh;
 	unsigned short int		idxMelhorIndividuo;

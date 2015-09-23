@@ -25,9 +25,10 @@ int main(int argc, char *argv[]) {
 	parmsPrograma.parmProbMutacao				= 0.3F;
 	parmsPrograma.parmIntensidadeMutacao	= 0.2F;
 	parmsPrograma.parmLambda					= 0.005F;
-	parmsPrograma.parmRhoMinimo				= 5.0F;
+	parmsPrograma.parmRhoMinimo				= 0.2F;
+	parmsPrograma.parmTolerancia				= 0.00001F;
 
-	/*
+	
 	parmsPrograma.parmQtdeGenes				= atoi(argv[1]);
 	parmsPrograma.parmQtdeMaxGeracoes		= atoi(argv[2]);
 	parmsPrograma.parmQtdeIndividuos			= atoi(argv[3]); // número de indivíduos por geração
@@ -38,7 +39,9 @@ int main(int argc, char *argv[]) {
 	parmsPrograma.parmIntensidadeMutacao	= (float)atof(argv[8])/10;
 	parmsPrograma.parmLambda					= (float)atof(argv[9]);
 	parmsPrograma.parmRhoMinimo				= (float)atof(argv[10]);
-	*/
+	parmsPrograma.parmTolerancia				= (float)atof(argv[11]);
+	
+
 	// Parâmetros variáveis
 	printf("parmsPrograma.parmQtdeGenes = %d	\n", parmsPrograma.parmQtdeGenes);
 	printf("parmsPrograma.parmQtdeIndividuos = %d	\n", parmsPrograma.parmQtdeIndividuos);
@@ -119,7 +122,8 @@ int main(int argc, char *argv[]) {
 
 	iGeracao = 0;
 	int flagAtingiuTolerancia = 0; // falso.
-	float erroAbsolutoNoRho = 1.0F, toleranciaErroRho = (float)0.000001;
+	float erroAbsolutoNoRho = 1.0F;
+	float tolerancia = parmsPrograma.parmTolerancia;
 
 	while (iGeracao < parmsPrograma.parmQtdeMaxGeracoes) {
 		
@@ -140,7 +144,8 @@ int main(int argc, char *argv[]) {
 		imprimeComportamentoFitness(	1, 0, 0, 0, iGeracao, geracao0,
 												&parametrosMetodo, &parametrosGA, &parmsPrograma);
 
-		if (erroAbsolutoNoRho <= toleranciaErroRho) {
+		// if (erroAbsolutoNoRho <= toleranciaErroRho) {
+		if ( (geracao0->gradRhoMedio <= tolerancia) || (geracao0->difRho <= tolerancia) ) {
 			flagAtingiuTolerancia = 1; // verdadeiro
 			break; // sai do while
 		}

@@ -739,6 +739,9 @@ void Fitness_Serial(
 	geracao->Maior_fitness = -1.0F;
 	geracao->Melhor_cociente_Rayleigh = -1.0F;
 
+	geracao->sumGradRho = 0.0F;
+	geracao->gradRhoMedio = -1.0F;
+
 	for (iIndividuo = 0; iIndividuo < parametrosGA->numIndividuos; iIndividuo++) {
 		
 		Calcula_Quociente_Rayleigh(geracao->individuo[iIndividuo].gene,
@@ -747,6 +750,7 @@ void Fitness_Serial(
 											&geracao->individuo[iIndividuo].cociente_Rayleigh);
 
 		geracao->sumRho = geracao->sumRho + geracao->individuo[iIndividuo].cociente_Rayleigh;
+		
 
 		Gradiente_de_Rho(	hamiltoniano,
 								ordem_hamiltoniano,
@@ -760,6 +764,8 @@ void Fitness_Serial(
 									geracao->individuo[iIndividuo].gradRho, ordem_hamiltoniano, 1,
 									&geracao->individuo[iIndividuo].grad_elevado_ao_quadrado);
 		
+		geracao->sumGradRho = geracao->sumGradRho + sqrt(geracao->individuo[iIndividuo].grad_elevado_ao_quadrado);
+
 		geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado = pow( (geracao->individuo[iIndividuo].cociente_Rayleigh - rho_minimo) ,2);
 		
 		// Fitness só com o grad rho
@@ -781,6 +787,8 @@ void Fitness_Serial(
 		}
 	}
 	
+	geracao->gradRhoMedio = geracao->sumGradRho / parametrosGA->numIndividuos;
+
 	geracao->rhoMedio = geracao->sumRho / parametrosGA->numIndividuos;
 	geracao->difRho = abs(geracao->rhoMedio - parms_Metodo->rho_minimo);
 	geracao->FitnessMedio = geracao->sumFitness / parametrosGA->numIndividuos;
@@ -1613,6 +1621,7 @@ unsigned short int imprimeComportamentoFitness(
 		printf("\t"); printf("Fitness Medio");
 		printf("\t"); printf("Maior Fitness");
 		printf("\t"); printf("Melhor rho");
+		printf("\t"); printf("Grad rho medio");
 		printf("\t"); printf("Posicao Melhor Individuo");
 	}
 	else {
@@ -1666,6 +1675,7 @@ unsigned short int imprimeComportamentoFitness(
 		printf("\t"); printf("%f", host_Geracao->FitnessMedio);
 		printf("\t"); printf("%f", host_Geracao->Maior_fitness);
 		printf("\t"); printf("%f", host_Geracao->Melhor_cociente_Rayleigh);
+		printf("\t"); printf("%f", host_Geracao->gradRhoMedio);
 		printf("\t"); printf("%d", host_Geracao->idxMelhorIndividuo);
 
 	} // final do if flag_Cabealho;
