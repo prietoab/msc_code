@@ -1,4 +1,5 @@
 
+
 //=========================================================================================================
 void Calcula_Quociente_Rayleigh(	float *VetorC,
 											float *Hamiltoniano,
@@ -787,11 +788,11 @@ void Fitness_Serial(
 		}
 	}
 	
+	geracao->FitnessMedio = geracao->sumFitness / parametrosGA->numIndividuos;
 	geracao->gradRhoMedio = geracao->sumGradRho / parametrosGA->numIndividuos;
-
 	geracao->rhoMedio = geracao->sumRho / parametrosGA->numIndividuos;
 	geracao->difRho = abs(geracao->rhoMedio - parms_Metodo->rho_minimo);
-	geracao->FitnessMedio = geracao->sumFitness / parametrosGA->numIndividuos;
+	
 
 }
 

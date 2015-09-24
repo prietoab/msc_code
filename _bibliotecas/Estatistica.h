@@ -117,7 +117,9 @@ float amplitude_total_rho(float *rho_minimo,
 }
 
 // -----------------------------------------------------------------------
-void gravaEstatistica(	struct generation *Geracao,
+void gravaEstatistica(	unsigned long int iGeracao,
+								struct generation *Geracao,
+								struct parametrosPrograma *parmsPrograma,
 								struct parametros *parametrosGA,
 								struct parametros_Metodo *parametrosMetodo) {
 // -----------------------------------------------------------------------
@@ -136,24 +138,6 @@ void gravaEstatistica(	struct generation *Geracao,
 	}
 
 	if (arqEstatistica != NULL) {
-
-		/*
-		if (primeiroCaractere != 'O') {
-			fprintf(arqEstatistica, "Ordem da matriz\t"); // 1
-			fprintf(arqEstatistica, "Número de Indivíduos por geração\t"); // 2
-			fprintf(arqEstatistica, "Probabilidade de Crossover\t"); // 3
-			fprintf(arqEstatistica, "Probabilidade de mutação\t"); // 4
-			fprintf(arqEstatistica, "Intensidade da mutação\t"); // 5
-			fprintf(arqEstatistica, "Lambda\t"); // 6
-			//fprintf(arqEstatistica, "Nome do executável\t"); // 7
-			fprintf(arqEstatistica, "Média dos rhos\t"); // 8
-			fprintf(arqEstatistica, "Desvio padrão dos rhos\t"); // 9
-			fprintf(arqEstatistica, "Desvio da média dos rhos \t"); // 10
-			fprintf(arqEstatistica, "Rho mínimo\t"); // 11
-			fprintf(arqEstatistica, "Rho máximo\t"); // 12
-			fprintf(arqEstatistica, "Amplitude total\n"); // 13
-		}
-		*/
 		
 		float rho_minimo = -1;
 		float rho_maximo = -1;
@@ -165,13 +149,22 @@ void gravaEstatistica(	struct generation *Geracao,
 		fprintf(arqEstatistica, "%1.6f\t", parametrosGA->probMutacao); // 4
 		fprintf(arqEstatistica, "%1.6f\t", parametrosGA->intensidadeMutacao); // 5
 		fprintf(arqEstatistica, "%1.6f\t", parametrosMetodo->lambda); // 6
-		//fprintf(arqEstatistica, "%s\t", __EXEC__); // 7
+		fprintf(arqEstatistica, "%1.6f\t", parmsPrograma->parmTolerancia);
+		fprintf(arqEstatistica, "%1.6f\t", Geracao->gradRhoMedio);
+		fprintf(arqEstatistica, "%1.6f\t", Geracao->difRho);
+		fprintf(arqEstatistica, "%1.6f\t", Geracao->rhoMedio);
+		fprintf(arqEstatistica, "%1.6f\t", parmsPrograma->parmRhoMinimo); // rho_0, limite inferior, (rho-rho_0) do fitness.
+		fprintf(arqEstatistica, "%d\t", iGeracao);
+		fprintf(arqEstatistica, "%1.6f\t", Geracao->FitnessMedio);
+		fprintf(arqEstatistica, "%1.6f\t", Geracao->Maior_fitness);
+		fprintf(arqEstatistica, "%1.6f\t", Geracao->Melhor_cociente_Rayleigh);
 		fprintf(arqEstatistica, "%3.20f\t", mediaRho(Geracao, parametrosGA)); // 8
 		fprintf(arqEstatistica, "%3.20f\t", desvio_padrao_rho(Geracao, parametrosGA)); // 9
 		fprintf(arqEstatistica, "%3.20f\t", desvio_da_media_rho(Geracao, parametrosGA));// 10
-		fprintf(arqEstatistica, "%3.20f\t", rho_minimo); // 11
+		fprintf(arqEstatistica, "%3.20f\t", rho_minimo); // esse é o menor rho da última geração
 		fprintf(arqEstatistica, "%3.20f\t", rho_maximo);// 12
 		fprintf(arqEstatistica, "%3.20f\n", amplitude_total_rho(&rho_minimo, &rho_maximo, Geracao, parametrosGA));// 13
+		
 		fclose(arqEstatistica);		
 	}
 }

@@ -15,19 +15,6 @@ int main(int argc, char *argv[]) {
 
 	// Pega os parâmetros da linha de comando
 	parametrosPrograma parmsPrograma;
-	// coloquei na mão só pra testar a alocação de memória
-	parmsPrograma.parmQtdeGenes				= 50;
-	parmsPrograma.parmQtdeMaxGeracoes		= 500000;
-	parmsPrograma.parmQtdeIndividuos			= 100; // número de indivíduos por geração
-	parmsPrograma.parmTamanhoTorneio			= 2;
-	parmsPrograma.parmProbCrossOver			= 0.8F;
-	parmsPrograma.parmQtdePontosCorte		= 2;
-	parmsPrograma.parmProbMutacao				= 0.3F;
-	parmsPrograma.parmIntensidadeMutacao	= 0.2F;
-	parmsPrograma.parmLambda					= 0.005F;
-	parmsPrograma.parmRhoMinimo				= 0.2F;
-	parmsPrograma.parmTolerancia				= 0.00001F;
-
 	
 	parmsPrograma.parmQtdeGenes				= atoi(argv[1]);
 	parmsPrograma.parmQtdeMaxGeracoes		= atoi(argv[2]);
@@ -40,7 +27,6 @@ int main(int argc, char *argv[]) {
 	parmsPrograma.parmLambda					= (float)atof(argv[9]);
 	parmsPrograma.parmRhoMinimo				= (float)atof(argv[10]);
 	parmsPrograma.parmTolerancia				= (float)atof(argv[11]);
-	
 
 	// Parâmetros variáveis
 	printf("parmsPrograma.parmQtdeGenes = %d	\n", parmsPrograma.parmQtdeGenes);
@@ -56,6 +42,7 @@ int main(int argc, char *argv[]) {
 	printf("parmsPrograma.parmQtdePontosCorte = %d	\n", parmsPrograma.parmQtdePontosCorte);
 	printf("parmsPrograma.parmLambda = %f	\n", parmsPrograma.parmLambda);
 	printf("parmsPrograma.parmRhoMinimo = %f	\n", parmsPrograma.parmRhoMinimo);
+	printf("parmsPrograma.parmTolerancia = %f \n", parmsPrograma.parmTolerancia);
 
 	// Definição das variáveis utilizadas para marcar o tempo.
 	// São do tipo clock_t, pois marcarei diretamente o clock
@@ -144,7 +131,6 @@ int main(int argc, char *argv[]) {
 		imprimeComportamentoFitness(	1, 0, 0, 0, iGeracao, geracao0,
 												&parametrosMetodo, &parametrosGA, &parmsPrograma);
 
-		// if (erroAbsolutoNoRho <= toleranciaErroRho) {
 		if ( (geracao0->gradRhoMedio <= tolerancia) || (geracao0->difRho <= tolerancia) ) {
 			flagAtingiuTolerancia = 1; // verdadeiro
 			break; // sai do while
@@ -198,7 +184,7 @@ int main(int argc, char *argv[]) {
 	printf("\n"); printf("Geracao final:");
 	imprimeGeracao(geracao0, &parametrosGA);
 
-	gravaEstatistica(geracao0, &parametrosGA, &parametrosMetodo);
+	gravaEstatistica(iGeracao, geracao0, &parmsPrograma, &parametrosGA, &parametrosMetodo);
 	
 	// ==================================================================
 	

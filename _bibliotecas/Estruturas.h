@@ -1,8 +1,10 @@
+#include <math.h>
 
 struct parametrosPrograma {
 	unsigned short int parmQtdeGenes;
 	unsigned long int parmQtdeMaxGeracoes;
 	unsigned short int parmQtdeIndividuos; // número de indivíduos por geração
+	char parmTipoFitness;
 	char parmTamanhoTorneio;
 	float	parmProbCrossOver;
 	unsigned short int parmQtdePontosCorte;
@@ -81,6 +83,18 @@ struct testeGeracao_s {
 };
 // - teste seleçao e crossover - pode ser removido
 
+//=====================================================================================
+float getLambda(unsigned short int N) {
+//=====================================================================================
+	float lambda;
+
+	// log = logaritmo natural, neperiano
+
+	lambda = -0.65*(log(0.000001)/pow((1.0001*N - 1.6507),2));
+
+	return lambda;
+}
+
 //---------------------------------------------------------------------------------------
 void inicializa_Parametros(struct parametrosPrograma *parmsPgm,
 									struct parametros *parametrosGA,
@@ -96,7 +110,11 @@ void inicializa_Parametros(struct parametrosPrograma *parmsPgm,
 	parametrosGA->tamanho_torneio = parmsPgm->parmTamanhoTorneio;
 	//parametrosGA->vlrMaximoGene = 0.1F;
 
-	parametrosMetodo->lambda = parmsPgm->parmLambda;
+	if (parmsPgm->parmLambda == -1)
+		parametrosMetodo->lambda = getLambda(parametrosGA->numGenes);
+	else
+		parametrosMetodo->lambda = parmsPgm->parmLambda;
+	
 	parametrosMetodo->rho_minimo = parmsPgm->parmRhoMinimo;
 
 	printf("\n");
@@ -295,4 +313,3 @@ void imprimeGeracao(	struct generation *host_Geracao,
 //	printf("\n");  printf("+IMPRIME GERACAO - FIM");
 //	printf("\n");  printf("+====================================================");
 }
-
