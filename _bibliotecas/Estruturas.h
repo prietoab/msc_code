@@ -1,6 +1,8 @@
 #include <math.h>
 
 struct parametrosPrograma {
+	unsigned short int parmMaquina;
+	unsigned short int parmSerial_ou_Paralelo;
 	unsigned short int parmQtdeGenes;
 	unsigned long int parmQtdeMaxGeracoes;
 	unsigned short int parmQtdeIndividuos; // número de indivíduos por geração
@@ -86,11 +88,8 @@ struct testeGeracao_s {
 //=====================================================================================
 float getLambda(unsigned short int N) {
 //=====================================================================================
-	float lambda;
-
 	// log = logaritmo natural, neperiano
-
-	lambda = -0.65*(log(0.000001)/pow((1.0001*N - 1.6507),2));
+	float	lambda = -0.65*(log(0.000001)/pow((1.0001*N - 1.6507),2));
 
 	return lambda;
 }

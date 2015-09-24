@@ -719,6 +719,7 @@ void testa_Gera_Matriz_de_Coope_LinhaColuna(void) {
 
 //=========================================================================================================
 void Fitness_Serial(
+		unsigned short int tipoFitness,
 		struct generation *geracao,
 		struct parametros *parametrosGA,
 		struct parametros_Metodo *parms_Metodo,
@@ -769,16 +770,28 @@ void Fitness_Serial(
 
 		geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado = pow( (geracao->individuo[iIndividuo].cociente_Rayleigh - rho_minimo) ,2);
 		
-		// Fitness só com o grad rho
-		//geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].grad_elevado_ao_quadrado));
-
-		// Fitness só com o rho - rho_0 ao quadrado
-		geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado));
-
-		// Fitness completo
-		//geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(0.01*geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado + geracao->individuo[iIndividuo].grad_elevado_ao_quadrado));
-		
-		
+		switch (tipoFitness) {
+			case 0: {
+				// Só com (rho - rho_0)^2
+				geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado));
+			}
+			break;
+			case 1: {
+				// Fitness só com o grad(rho)
+				geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].grad_elevado_ao_quadrado));
+			}
+			break;
+			case 2: {
+				// Com (rho - rho_0)^2 + grad(rho)
+				geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado + geracao->individuo[iIndividuo].grad_elevado_ao_quadrado));
+			}
+			break;
+			default: {
+				geracao->individuo[iIndividuo].fitness = -1;
+			}
+			break;
+		}
+				
 		geracao->sumFitness = geracao->sumFitness + geracao->individuo[iIndividuo].fitness;
 		
 		if (geracao->individuo[iIndividuo].fitness > geracao->Maior_fitness) {

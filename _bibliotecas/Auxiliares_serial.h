@@ -1,13 +1,11 @@
 
 //---------------------------------------------------------------------------------------
-void inicializa_Semente(void) {
+unsigned long int inicializa_Semente(void) {
 //---------------------------------------------------------------------------------------
    unsigned long int semente = (unsigned long int)time (NULL);
-	//unsigned long int semente = (unsigned long int)1431049331;
-
-	printf("\nRandomize\tSemente = %d", semente);
-	
+	printf("\nRandomize\tSemente = %d", semente);	
 	srand(semente);
+	return semente;
 }
 
 //---------------------------------------------------------------------------------------

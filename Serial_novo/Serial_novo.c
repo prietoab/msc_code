@@ -16,33 +16,40 @@ int main(int argc, char *argv[]) {
 	// Pega os parâmetros da linha de comando
 	parametrosPrograma parmsPrograma;
 	
-	parmsPrograma.parmQtdeGenes				= atoi(argv[1]);
-	parmsPrograma.parmQtdeMaxGeracoes		= atoi(argv[2]);
-	parmsPrograma.parmQtdeIndividuos			= atoi(argv[3]); // número de indivíduos por geração
-	parmsPrograma.parmTamanhoTorneio			= atoi(argv[4]);
-	parmsPrograma.parmProbCrossOver			= (float)atof(argv[5])/100;
-	parmsPrograma.parmQtdePontosCorte		= atoi(argv[6]);
-	parmsPrograma.parmProbMutacao				= (float)atof(argv[7])/100;
-	parmsPrograma.parmIntensidadeMutacao	= (float)atof(argv[8])/10;
-	parmsPrograma.parmLambda					= (float)atof(argv[9]);
-	parmsPrograma.parmRhoMinimo				= (float)atof(argv[10]);
-	parmsPrograma.parmTolerancia				= (float)atof(argv[11]);
+	parmsPrograma.parmMaquina					= atoi(argv[1]);
+	parmsPrograma.parmSerial_ou_Paralelo	= atoi(argv[2]);
+	parmsPrograma.parmQtdeGenes				= atoi(argv[3]);
+	parmsPrograma.parmQtdeMaxGeracoes		= atoi(argv[4]);
+	parmsPrograma.parmQtdeIndividuos			= atoi(argv[5]); // número de indivíduos por geração
+	parmsPrograma.parmTipoFitness				= atoi(argv[6]);
+	unsigned short int tipoFitness = parmsPrograma.parmTipoFitness;
+	parmsPrograma.parmTamanhoTorneio			= atoi(argv[7]);
+	parmsPrograma.parmProbCrossOver			= (float)atof(argv[8])/100;
+	parmsPrograma.parmQtdePontosCorte		= atoi(argv[9]);
+	parmsPrograma.parmProbMutacao				= (float)atof(argv[10])/100;
+	parmsPrograma.parmIntensidadeMutacao	= (float)atof(argv[11])/10;
+	parmsPrograma.parmLambda					= (float)atof(argv[12]);
+	parmsPrograma.parmRhoMinimo				= (float)atof(argv[13]);
+	parmsPrograma.parmTolerancia				= (float)atof(argv[14]);
 
-	// Parâmetros variáveis
-	printf("parmsPrograma.parmQtdeGenes = %d	\n", parmsPrograma.parmQtdeGenes);
-	printf("parmsPrograma.parmQtdeIndividuos = %d	\n", parmsPrograma.parmQtdeIndividuos);
-	printf("parmsPrograma.parmProbCrossOver = %f	\n", parmsPrograma.parmProbCrossOver);
-	printf("parmsPrograma.parmProbMutacao = %f	\n", parmsPrograma.parmProbMutacao);
-	printf("parmsPrograma.parmIntensidadeMutacao = %f	\n", parmsPrograma.parmIntensidadeMutacao);
-
-	// Parâmetros fixos
-	printf("\n");
-	printf("parmsPrograma.parmQtdeMaxGeracoes = %d	\n", parmsPrograma.parmQtdeMaxGeracoes);
-	printf("parmsPrograma.parmTamanhoTorneio = %d	\n", parmsPrograma.parmTamanhoTorneio);
-	printf("parmsPrograma.parmQtdePontosCorte = %d	\n", parmsPrograma.parmQtdePontosCorte);
-	printf("parmsPrograma.parmLambda = %f	\n", parmsPrograma.parmLambda);
-	printf("parmsPrograma.parmRhoMinimo = %f	\n", parmsPrograma.parmRhoMinimo);
+	/* 
+	printf("parmsPrograma.parmMaquina = %d \n", parmsPrograma.parmMaquina);
+	printf("parmsPrograma.parmSerial_ou_Paralelo = %d \n", parmsPrograma.parmSerial_ou_Paralelo);
+	printf("parmsPrograma.parmQtdeGenes = %d \n", parmsPrograma.parmQtdeGenes);
+	printf("parmsPrograma.parmQtdeMaxGeracoes = %d \n", parmsPrograma.parmQtdeMaxGeracoes);
+	printf("parmsPrograma.parmQtdeIndividuos = %d \n", parmsPrograma.parmQtdeIndividuos);
+	printf("parmsPrograma.parmTipoFitness = %d \n", parmsPrograma.parmTipoFitness);
+	printf("parmsPrograma.parmTamanhoTorneio = %d \n", parmsPrograma.parmTamanhoTorneio);
+	printf("parmsPrograma.parmProbCrossOver = %f \n", parmsPrograma.parmProbCrossOver);
+	printf("parmsPrograma.parmQtdePontosCorte = %d \n", parmsPrograma.parmQtdePontosCorte);
+	printf("parmsPrograma.parmProbMutacao = %f \n", parmsPrograma.parmProbMutacao);
+	printf("parmsPrograma.parmIntensidadeMutacao = %f \n", parmsPrograma.parmIntensidadeMutacao);
+	printf("parmsPrograma.parmLambda = %f \n", parmsPrograma.parmLambda);
+	printf("parmsPrograma.parmRhoMinimo = %f \n", parmsPrograma.parmRhoMinimo);
 	printf("parmsPrograma.parmTolerancia = %f \n", parmsPrograma.parmTolerancia);
+
+	return 0;
+	*/
 
 	// Definição das variáveis utilizadas para marcar o tempo.
 	// São do tipo clock_t, pois marcarei diretamente o clock
@@ -74,7 +81,7 @@ int main(int argc, char *argv[]) {
 	unsigned long int				iGeracao;
 	float								*Hamiltoniano;
 
-	inicializa_Semente();
+	unsigned long int semente = inicializa_Semente();
 
 	// Imprime o cabecalho da marcação de tempo
 	//imprimeTempo(0, 0, 0, 0, 0, 0, 0, 0);
@@ -103,19 +110,23 @@ int main(int argc, char *argv[]) {
 	time_f = clock();
 	//imprimeTempo(1, 0, 0, 0, 3, 2, time_i, time_f);
 
-	// Cabeçalho dos dados de comportamento do fitness
-	imprimeComportamentoFitness(	0, 0, 0, 0, 0, geracao0,
-											&parametrosMetodo, &parametrosGA, &parmsPrograma);
-
+	// Interface entre os parãmetros e as variáveis locais
 	iGeracao = 0;
 	int flagAtingiuTolerancia = 0; // falso.
 	float erroAbsolutoNoRho = 1.0F;
 	float tolerancia = parmsPrograma.parmTolerancia;
+	unsigned short int codMaquina = parmsPrograma.parmMaquina;
+
+
+	// Cabeçalho dos dados de comportamento do fitness
+	imprimeComportamentoFitness(	0, codMaquina, 0, 0, 0, geracao0,
+											&parametrosMetodo, &parametrosGA, &parmsPrograma);
 
 	while (iGeracao < parmsPrograma.parmQtdeMaxGeracoes) {
 		
 		time_i = clock();
-		Fitness_Serial(	geracao0,
+		Fitness_Serial(	tipoFitness,
+								geracao0,
 								&parametrosGA,
 								&parametrosMetodo,
 								Hamiltoniano,
@@ -128,7 +139,7 @@ int main(int argc, char *argv[]) {
 
 		erroAbsolutoNoRho = geracao0->difRho;
 		
-		imprimeComportamentoFitness(	1, 0, 0, 0, iGeracao, geracao0,
+		imprimeComportamentoFitness(	1, codMaquina, 0, 0, iGeracao, geracao0,
 												&parametrosMetodo, &parametrosGA, &parmsPrograma);
 
 		if ( (geracao0->gradRhoMedio <= tolerancia) || (geracao0->difRho <= tolerancia) ) {
@@ -163,7 +174,8 @@ int main(int argc, char *argv[]) {
 	
 	if (flagAtingiuTolerancia == 0) {
 		time_i = clock();
-		Fitness_Serial(	geracao0,
+		Fitness_Serial(	tipoFitness,
+								geracao0,
 								&parametrosGA,
 								&parametrosMetodo,
 								Hamiltoniano,
@@ -173,7 +185,7 @@ int main(int argc, char *argv[]) {
 								MatrizIdentidade);
 		time_f = clock();
 		//imprimeTempo(1, 0, 0, iGeracao, 4, 2, time_i, time_f);
-		imprimeComportamentoFitness(	1, 0, 0, 0, iGeracao, geracao0,
+		imprimeComportamentoFitness(	1, codMaquina, 0, 0, iGeracao, geracao0,
 												&parametrosMetodo, &parametrosGA, &parmsPrograma);
 	}
 
@@ -184,7 +196,12 @@ int main(int argc, char *argv[]) {
 	printf("\n"); printf("Geracao final:");
 	imprimeGeracao(geracao0, &parametrosGA);
 
-	gravaEstatistica(iGeracao, geracao0, &parmsPrograma, &parametrosGA, &parametrosMetodo);
+	gravaEstatistica(	semente,
+							iGeracao,
+							geracao0,
+							&parmsPrograma,
+							&parametrosGA,
+							&parametrosMetodo);
 	
 	// ==================================================================
 	

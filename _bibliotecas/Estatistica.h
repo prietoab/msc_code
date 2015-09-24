@@ -117,7 +117,8 @@ float amplitude_total_rho(float *rho_minimo,
 }
 
 // -----------------------------------------------------------------------
-void gravaEstatistica(	unsigned long int iGeracao,
+void gravaEstatistica(	unsigned long int semente,
+								unsigned long int iGeracao,
 								struct generation *Geracao,
 								struct parametrosPrograma *parmsPrograma,
 								struct parametros *parametrosGA,
@@ -142,9 +143,13 @@ void gravaEstatistica(	unsigned long int iGeracao,
 		float rho_minimo = -1;
 		float rho_maximo = -1;
 		rho_minimo_e_maximo(&rho_minimo, &rho_maximo, Geracao, parametrosGA);
-
+		
+		fprintf(arqEstatistica, "%d\t", semente);
+		fprintf(arqEstatistica, "%d\t", parmsPrograma->parmMaquina); // 1
+		fprintf(arqEstatistica, "%d\t", parmsPrograma->parmSerial_ou_Paralelo); // 1
 		fprintf(arqEstatistica, "%d\t", parametrosGA->numGenes); // 1
 		fprintf(arqEstatistica, "%d\t", parametrosGA->numIndividuos); // 2
+		fprintf(arqEstatistica, "%d\t", parmsPrograma->parmTipoFitness); // 1
 		fprintf(arqEstatistica, "%1.6f\t", parametrosGA->probCrossOver); // 3
 		fprintf(arqEstatistica, "%1.6f\t", parametrosGA->probMutacao); // 4
 		fprintf(arqEstatistica, "%1.6f\t", parametrosGA->intensidadeMutacao); // 5
