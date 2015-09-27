@@ -117,7 +117,8 @@ float amplitude_total_rho(float *rho_minimo,
 }
 
 // -----------------------------------------------------------------------
-void gravaEstatistica(	unsigned long int semente,
+void gravaEstatistica(	unsigned long int tempoTotalProcessamento,
+								unsigned long int semente,
 								unsigned long int iGeracao,
 								struct generation *Geracao,
 								struct parametrosPrograma *parmsPrograma,
@@ -168,7 +169,8 @@ void gravaEstatistica(	unsigned long int semente,
 		fprintf(arqEstatistica, "%3.20f\t", desvio_da_media_rho(Geracao, parametrosGA));// 10
 		fprintf(arqEstatistica, "%3.20f\t", rho_minimo); // esse é o menor rho da última geração
 		fprintf(arqEstatistica, "%3.20f\t", rho_maximo);// 12
-		fprintf(arqEstatistica, "%3.20f\n", amplitude_total_rho(&rho_minimo, &rho_maximo, Geracao, parametrosGA));// 13
+		fprintf(arqEstatistica, "%3.20f\t", amplitude_total_rho(&rho_minimo, &rho_maximo, Geracao, parametrosGA));// 13
+		fprintf(arqEstatistica, "%d\n", tempoTotalProcessamento);
 		
 		fclose(arqEstatistica);		
 	}

@@ -1621,7 +1621,8 @@ unsigned short int imprimeComportamentoFitness(
 //---------------------------------------------------------------------------------------
 
 	if (flag_Cabecalho == 0) {
-		printf("\n"); printf("Maquina");						// 0 - Adriano, 1 - FT
+		printf("\n"); printf("Comportamento do Fitness");
+		printf("\t"); printf("Maquina");						// 0 - Adriano, 1 - FT
 		printf("\t"); printf("Serial ou Paralelo?");		// 0 - Serial, 1 - Paralelo
 		printf("\t"); printf("Quantidade Geracoes");		// constNumGeracoes
 		printf("\t"); printf("Quantidade Individuos");	// constNumIndividuos
@@ -1674,8 +1675,8 @@ unsigned short int imprimeComportamentoFitness(
 			}; break;
 		}
 
-
-		printf("\n"); printf("%s", strMaquina);			
+		printf("\n"); printf("Comportamento do Fitness");
+		printf("\t"); printf("%s", strMaquina);			
 		printf("\t"); printf("%s", str_TipoPrograma);	
 		printf("\t"); printf("%d", host_parametrosPrograma->parmQtdeMaxGeracoes);	
 		printf("\t"); printf("%d", host_parametrosGA->numIndividuos);	
@@ -1695,4 +1696,39 @@ unsigned short int imprimeComportamentoFitness(
 	} // final do if flag_Cabealho;
 
 	return 0;
+}
+
+//------------------------------------------------------------------------------------
+unsigned short int atingiuCriterioDeParada(
+							unsigned short int tipoFitness,
+							float tolerancia,
+							struct generation *geracao) {
+//------------------------------------------------------------------------------------
+
+	unsigned short int flagAtingiuTolerancia = 0; // falso
+
+	printf("\n===> atingiuCriterioDeParada\t"); printf("Tipo Fitness = %d", tipoFitness);
+	if (tipoFitness == 0 || tipoFitness == 2) {
+		printf("\n===> atingiuCriterioDeParada\t"); printf("Entrou no 'tipoFitness == 0 || tipoFitness == 2'");
+		printf("\n===> atingiuCriterioDeParada\t"); printf("geracao->gradRhoMedio = %f <= %f = tolerancia? %s", geracao->gradRhoMedio, tolerancia, geracao->gradRhoMedio <= tolerancia? "Sim" : "Não");
+		printf("\n===> atingiuCriterioDeParada\t"); printf("geracao->difRho = %f <= %f = tolerancia? %s", geracao->difRho, tolerancia, geracao->difRho <= tolerancia? "Sim":"Não");
+		if ( (geracao->gradRhoMedio <= tolerancia) || (geracao->difRho <= tolerancia) ) {
+			printf("\n===> atingiuCriterioDeParada\t"); printf("Entrou no 'geracao->gradRhoMedio <= tolerancia) || (geracao->difRho <= tolerancia'");
+			flagAtingiuTolerancia = 1; // verdadeiro
+			printf("\n===> atingiuCriterioDeParada\t"); printf("flagAtingiuTolerancia = 1");
+		}
+	}
+	else {
+		if (tipoFitness == 1) {
+			printf("\n===> atingiuCriterioDeParada\t"); printf("Entrou no 'tipoFitness == 1'");			
+			printf("\n===> atingiuCriterioDeParada\t"); printf("geracao->gradRhoMedio = %f <= %f = tolerancia? %s", geracao->gradRhoMedio, tolerancia, geracao->gradRhoMedio <= tolerancia? "Sim":"Não");
+			if (geracao->gradRhoMedio <= tolerancia) {	
+				printf("\n===> atingiuCriterioDeParada\t"); printf("Entrou no 'geracao->gradRhoMedio <= tolerancia'");
+				flagAtingiuTolerancia = 1; // verdadeiro
+				printf("\n===> atingiuCriterioDeParada\t"); printf("flagAtingiuTolerancia = 1");
+			}
+		}
+	}
+
+	return flagAtingiuTolerancia;
 }

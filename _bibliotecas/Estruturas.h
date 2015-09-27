@@ -15,6 +15,10 @@ struct parametrosPrograma {
 	float parmLambda;
 	float parmRhoMinimo;
 	float parmTolerancia;
+	unsigned short int parmFlagImprimeComportamentoFitness;
+	unsigned short int parmFlagImprimeTempo;
+	unsigned short int parmFlagNovaSemente;
+	unsigned long int parmSemente;
 };
 struct individual {
 	float							cociente_Rayleigh;

@@ -1,9 +1,15 @@
 
 //---------------------------------------------------------------------------------------
-unsigned long int inicializa_Semente(void) {
+unsigned long int inicializa_Semente(unsigned short int flagNovaSemente, unsigned long int sementeExterna) {
 //---------------------------------------------------------------------------------------
-   unsigned long int semente = (unsigned long int)time (NULL);
-	printf("\nRandomize\tSemente = %d", semente);	
+   unsigned long int semente;
+	
+	if (flagNovaSemente == 1) // verdadeiro
+		semente = (unsigned long int)time (NULL);
+	else
+		semente = sementeExterna;
+
+	printf("\nSemente = %d", semente);	
 	srand(semente);
 	return semente;
 }
@@ -55,7 +61,7 @@ int Randomico_int(unsigned short int range_min, unsigned short int range_max) {
 void testa_Randomico() {
 //---------------------------------------------------------------------------------------
 
-	inicializa_Semente();
+	inicializa_Semente(1, 0);
 	
 	unsigned short int minimo, maximo;
 	unsigned long int iNumero, qtdeNumeros;
@@ -86,7 +92,8 @@ unsigned short int imprimeTempo(
 //---------------------------------------------------------------------------------------
 
 	if (flag_Cabecalho == 0) {
-		printf("\n"); printf("Maquina");						// 0 - Adriano, 1 - FT
+		printf("\n"); printf("Tempo de processamento");
+		printf("\t"); printf("Maquina");						// 0 - Adriano, 1 - FT
 		printf("\t"); printf("Serial ou Paralelo?");		// 0 - Serial, 1 - Paralelo
 		printf("\t"); printf("Quantidade Geracoes");		// constNumGeracoes
 		printf("\t"); printf("Quantidade Individuos");	// constNumIndividuos
@@ -170,8 +177,9 @@ unsigned short int imprimeTempo(
 			break;
 
 		}
-
-		printf("\n"); printf("%s", strMaquina);			
+		
+		printf("\n"); printf("Tempo de processamento");
+		printf("\t"); printf("%s", strMaquina);			
 		printf("\t"); printf("%s", str_TipoPrograma);	
 		printf("\t"); printf("%d", parmsPrograma->parmQtdeMaxGeracoes);	
 		printf("\t"); printf("%d", parametrosGA->numIndividuos);	
