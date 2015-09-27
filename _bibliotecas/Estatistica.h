@@ -150,7 +150,7 @@ void gravaEstatistica(	unsigned long int tempoTotalProcessamento,
 		fprintf(arqEstatistica, "%d\t", parmsPrograma->parmSerial_ou_Paralelo); // 1
 		fprintf(arqEstatistica, "%d\t", parametrosGA->numGenes); // 1
 		fprintf(arqEstatistica, "%d\t", parametrosGA->numIndividuos); // 2
-		fprintf(arqEstatistica, "%d\t", parmsPrograma->parmTipoFitness); // 1
+		fprintf(arqEstatistica, "%d\t", parmsPrograma->parmTipoFitnessEquacao); // 1
 		fprintf(arqEstatistica, "%1.6f\t", parametrosGA->probCrossOver); // 3
 		fprintf(arqEstatistica, "%1.6f\t", parametrosGA->probMutacao); // 4
 		fprintf(arqEstatistica, "%1.6f\t", parametrosGA->intensidadeMutacao); // 5

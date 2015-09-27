@@ -108,17 +108,6 @@ unsigned short int imprimeTempo(
 																		*/
 	}
 	else {
-
-		char *strMaquina;
-		switch (cod_Maquina)	{
-			case 0: strMaquina = "00 - GT130M\0"; break;
-			case 1: strMaquina = "01 - Beowulf\0"; break;
-			default: {
-					printf("\n");
-					printf("Erro\timprimeTempo\tCodigo da maquina invalido.");
-					return 1;
-			} break;
-		}
 		
 		char *str_TipoPrograma;
 		switch (cod_tipoPrograma) {
@@ -179,7 +168,7 @@ unsigned short int imprimeTempo(
 		}
 		
 		printf("\n"); printf("Tempo de processamento");
-		printf("\t"); printf("%s", strMaquina);			
+		printf("\t"); printf("%d", cod_Maquina);			
 		printf("\t"); printf("%s", str_TipoPrograma);	
 		printf("\t"); printf("%d", parmsPrograma->parmQtdeMaxGeracoes);	
 		printf("\t"); printf("%d", parametrosGA->numIndividuos);	
