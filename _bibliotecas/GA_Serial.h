@@ -1,5 +1,3 @@
-
-
 //=========================================================================================================
 void Calcula_Quociente_Rayleigh(	float *VetorC,
 											float *Hamiltoniano,
@@ -300,6 +298,48 @@ void testa_Calcula_Quociente_Rayleigh(void) {
 	*/
 }
 
+
+//=========================================================================================================
+void Gradiente_de_Rho_semI(
+							float *Hamiltoniano, const unsigned short int Ordem_Hamiltoniano,
+							float *Autovetor_C, float Cociente_Rayleigh, float *Gradiente_de_rho) {
+//=========================================================================================================
+
+		float *mAuxOxO, *mAuxOx1, CtC;
+	unsigned long int	qtdeElementos;
+
+	qtdeElementos = Ordem_Hamiltoniano*Ordem_Hamiltoniano;
+
+	mAuxOxO = (float *)malloc(qtdeElementos*sizeof(float));
+		unsigned short int linha, coluna;
+	// Diagonal: i + i*ordem
+	for (linha = 0; linha < Ordem_Hamiltoniano; linha++) {
+		for (coluna = 0; coluna < Ordem_Hamiltoniano; coluna++) {
+			if (linha == coluna) 
+				*(mAuxOxO + coluna + linha*Ordem_Hamiltoniano) = *(Hamiltoniano + coluna + linha*Ordem_Hamiltoniano) - Cociente_Rayleigh;
+			else
+				*(mAuxOxO + coluna + linha*Ordem_Hamiltoniano) = *(Hamiltoniano + coluna + linha*Ordem_Hamiltoniano);
+		}
+	}
+	
+	multiplica_matriz_por_escalar(mAuxOxO, 2, qtdeElementos, mAuxOxO);
+
+	mAuxOx1 = (float *)malloc(Ordem_Hamiltoniano*sizeof(float));
+
+	Multiplica_Matrizes(mAuxOxO, Ordem_Hamiltoniano, Ordem_Hamiltoniano, Autovetor_C, Ordem_Hamiltoniano, 1, mAuxOx1);
+
+	Multiplica_Matrizes(Autovetor_C, 1, Ordem_Hamiltoniano, Autovetor_C, Ordem_Hamiltoniano, 1, &CtC);
+
+	multiplica_matriz_por_escalar(mAuxOx1, (float)(1/CtC), Ordem_Hamiltoniano, Gradiente_de_rho);
+
+	free(mAuxOxO);
+	mAuxOxO = NULL;
+	free(mAuxOx1);
+	mAuxOx1 = NULL;
+
+	//--
+}
+
 //=========================================================================================================
 void Gradiente_de_Rho(float *Hamiltoniano, const unsigned short int Ordem_Hamiltoniano,
 							 float *Autovetor_C, float Cociente_Rayleigh, float *Gradiente_de_rho,
@@ -313,99 +353,21 @@ void Gradiente_de_Rho(float *Hamiltoniano, const unsigned short int Ordem_Hamilt
 
 	qtdeElementos = Ordem_Hamiltoniano*Ordem_Hamiltoniano;
 
-	// Cria matriz identidade
-	
-	/*
-	mIdentidade = (float *)malloc(qtdeElementos*sizeof(float));
-	for (iElemento = 0; iElemento < qtdeElementos; iElemento++) {
-		if ( (iElemento + Ordem_Hamiltoniano + 1) % (Ordem_Hamiltoniano + 1) == 0) {
-			*(mIdentidade + iElemento) = 1.0F;
-		}
-		else {
-			*(mIdentidade + iElemento) = 0.0F;
-		}
-	}
-	*/
-
 	mAuxOxO = (float *)malloc(qtdeElementos*sizeof(float));
 	multiplica_matriz_por_escalar(mIdentidade, Cociente_Rayleigh, qtdeElementos, mAuxOxO);
 
-	// TESTE INÍCIO (pode ser comentado)
-	/*
-	printf("\n\nMultiplicando a matriz por rho = %f\n", Cociente_Rayleigh);
-	for (iElemento = 0; iElemento < qtdeElementos; iElemento++)
-		printf("\na[%d] = %f", iElemento, *(mAuxOxO + iElemento));
-	*/
-	// TESTE FIM
-
-	// TESTE INÍCIO (pode ser comentado)
-	/*
-	printf("\n\nHamiltoniano\n");
-	for (iElemento = 0; iElemento < qtdeElementos; iElemento++)
-		printf("\na[%d] = %f", iElemento, *(Hamiltoniano + iElemento));
-	*/
-	// TESTE FIM
-
 	Subtrai_Matrizes(Hamiltoniano, mAuxOxO, qtdeElementos, mAuxOxO);
 	
-	// TESTE INÍCIO (pode ser comentado)
-	/*
-	printf("\n\nHamiltoniano - rho.Indentidade\n");
-	for (iElemento = 0; iElemento < qtdeElementos; iElemento++)
-		printf("\na[%d] = %f", iElemento, *(mAuxOxO + iElemento));
-	*/
-	// TESTE FIM
-
 	multiplica_matriz_por_escalar(mAuxOxO, 2, qtdeElementos, mAuxOxO);
 
-	// TESTE INÍCIO (pode ser comentado)
-	/*
-	printf("\n\nMultiplicando tudo por 2 (vem da equacao)\n");
-	for (iElemento = 0; iElemento < qtdeElementos; iElemento++)
-		printf("\na[%d] = %f", iElemento, *(mAuxOxO + iElemento));
-	*/
-	// TESTE FIM
-
-	// TESTE INÍCIO (pode ser comentado)
-	/*
-	printf("\n\nC (candidato a autovetor)\n");
-	for (iElemento = 0; iElemento < Ordem_Hamiltoniano; iElemento++)
-		printf("\na[%d] = %f", iElemento, *(Autovetor_C + iElemento));
-	*/
-	// TESTE FIM
-
 	mAuxOx1 = (float *)malloc(Ordem_Hamiltoniano*sizeof(float));
-	Multiplica_Matrizes(mAuxOxO, Ordem_Hamiltoniano, Ordem_Hamiltoniano, Autovetor_C, Ordem_Hamiltoniano, 1, mAuxOx1);
 
-	// TESTE INÍCIO (pode ser comentado)
-	/*
-	printf("\n\nMultiplicando tudo por C (numerador do gradiente de rho)\n");
-	for (iElemento = 0; iElemento < Ordem_Hamiltoniano; iElemento++)
-		printf("\na[%d] = %f", iElemento, *(mAuxOx1 + iElemento));
-	*/
-	// TESTE FIM
+	Multiplica_Matrizes(mAuxOxO, Ordem_Hamiltoniano, Ordem_Hamiltoniano, Autovetor_C, Ordem_Hamiltoniano, 1, mAuxOx1);
 
 	Multiplica_Matrizes(Autovetor_C, 1, Ordem_Hamiltoniano, Autovetor_C, Ordem_Hamiltoniano, 1, &CtC);
 
-	// TESTE INÍCIO (pode ser comentado)
-	/*
-	printf("\n\nC_transposto x C\n");
-	printf("\n%f", CtC);
-	*/
-	// TESTE FIM
-
 	multiplica_matriz_por_escalar(mAuxOx1, (float)(1/CtC), Ordem_Hamiltoniano, Gradiente_de_rho);
 
-	// TESTE INÍCIO (pode ser comentado)
-	/*
-	printf("\n\nGradiente de rho na função Gradiente_de_Rho()\n");
-	for (iElemento = 0; iElemento < Ordem_Hamiltoniano; iElemento++)
-		printf("\na[%d] = %f", iElemento, *(Gradiente_de_rho + iElemento));
-	*/
-	// TESTE FIM
-
-	//free(mIdentidade);
-	//mIdentidade = NULL;
 	free(mAuxOxO);
 	mAuxOxO = NULL;
 	free(mAuxOx1);
@@ -720,6 +682,7 @@ void testa_Gera_Matriz_de_Coope_LinhaColuna(void) {
 //=========================================================================================================
 void Fitness_Serial(
 		unsigned short int tipoFitness,
+		char TipoCalculoGradRho,
 		struct generation *geracao,
 		struct parametros *parametrosGA,
 		struct parametros_Metodo *parms_Metodo,
@@ -754,13 +717,22 @@ void Fitness_Serial(
 		geracao->sumRho = geracao->sumRho + geracao->individuo[iIndividuo].cociente_Rayleigh;
 		
 
-		Gradiente_de_Rho(	hamiltoniano,
+		if (TipoCalculoGradRho == 1){
+				Gradiente_de_Rho_semI(
+								hamiltoniano,
+								ordem_hamiltoniano,
+								geracao->individuo[iIndividuo].gene,
+								geracao->individuo[iIndividuo].cociente_Rayleigh,
+								geracao->individuo[iIndividuo].gradRho);
+		}
+		else {
+				Gradiente_de_Rho(	hamiltoniano,
 								ordem_hamiltoniano,
 								geracao->individuo[iIndividuo].gene,
 								geracao->individuo[iIndividuo].cociente_Rayleigh,
 								geracao->individuo[iIndividuo].gradRho,
 								matriz_Identidade);
-
+		}
 
 		Multiplica_Matrizes(	geracao->individuo[iIndividuo].gradRho, 1, ordem_hamiltoniano,
 									geracao->individuo[iIndividuo].gradRho, ordem_hamiltoniano, 1,
@@ -777,13 +749,23 @@ void Fitness_Serial(
 			}
 			break;
 			case 1: {
-				// Fitness só com o grad(rho)
+				// Fitness só com o grad(rho)^2
 				geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].grad_elevado_ao_quadrado));
 			}
 			break;
 			case 2: {
-				// Com (rho - rho_0)^2 + grad(rho)
+				// Com (rho - rho_0)^2 + grad(rho)^2
 				geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado + geracao->individuo[iIndividuo].grad_elevado_ao_quadrado));
+			}
+			break;
+			case 3: {
+				// Com grad(rho)
+				geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*( sqrt(geracao->individuo[iIndividuo].grad_elevado_ao_quadrado) ) );
+			}
+			break;
+			case 4: {
+				// Com (rho - rho_0)^2 + grad(rho)
+				geracao->individuo[iIndividuo].fitness = exp( (-1)*lambda*(geracao->individuo[iIndividuo].rho_menos_rho0_ao_quadrado + sqrt(geracao->individuo[iIndividuo].grad_elevado_ao_quadrado)));
 			}
 			break;
 			default: {
@@ -809,219 +791,6 @@ void Fitness_Serial(
 
 }
 
-//=========================================================================================================
-void testa_Fitness_Serial(void) {
-//=========================================================================================================
-	//TODO: corrigir parâmetros do Fitness_Serial
-
-	/*
-	struct generation geracao;
-	struct parametros parametrosGA;
-	
-	parametrosGA.numGenes = 50;
-	parametrosGA.numIndividuos = 10;
-
-	float *H;
-	H = (float *)malloc(parametrosGA.numGenes*parametrosGA.numGenes*sizeof(float));
-	gera_Matriz_de_Coope_abs(H, parametrosGA.numGenes);
-
-	// Inicializa atributos da geracao;
-	
-	geracao.FitnessMedio = -1.0F;
-	geracao.idxMelhorIndividuo = 99;
-	geracao.Maior_fitness = -1.0F;;
-	geracao.Melhor_cociente_Rayleigh = -1.0F;
-	geracao.sumFitness = -1.0F;
-	
-	for (unsigned short int iIndividuo = 0; iIndividuo < parametrosGA.numIndividuos; iIndividuo++ ) {
-		geracao.individuo[iIndividuo].cociente_Rayleigh = -1.0F;
-		geracao.individuo[iIndividuo].fitness = -1.0F;
-		geracao.individuo[iIndividuo].grad_elevado_ao_quadrado = -1.0;
-		geracao.individuo[iIndividuo].CtC = -1.0F;
-		geracao.individuo[iIndividuo].inverso_de_CtC = -1.0F;
-		geracao.individuo[iIndividuo].Numerador = -1.0F;
-		geracao.individuo[iIndividuo].rho_menos_rho0_ao_quadrado = -1.0F;
-		for (unsigned short int iGene = 0; iGene < parametrosGA.numGenes; iGene++ ) {
-			geracao.individuo[iIndividuo].gene[iGene] = -1.0F;			
-		}
-	}
-
-	printf("\n"); printf("Geracao sem autovalores = ");
-	imprimeGeracao(&geracao, &parametrosGA);
-	
-	// ------------------------------
-	//	INICIALIZAÇÃO DOS VETORES COM OS GENES DOS AUTOVETORES
-	//   -------------------------------                         
-
-	// Indivíduo 0
-	geracao.individuo[0].gene[0] = 0.9780472F;
-	geracao.individuo[0].gene[1] = -0.1700842F;
-	geracao.individuo[0].gene[2] = -0.0782391F;
-	geracao.individuo[0].gene[3] = -0.0508047F;
-	geracao.individuo[0].gene[4] = -0.0376151F;
-	geracao.individuo[0].gene[5] = -0.0298623F;
-	geracao.individuo[0].gene[6] = -0.0247593F;
-	geracao.individuo[0].gene[7] = -0.0211458F;
-	geracao.individuo[0].gene[8] = -0.0184527F;
-	geracao.individuo[0].gene[9] = -0.0163681F;
-	geracao.individuo[0].gene[10] = -0.0147067F;
-	geracao.individuo[0].gene[11] = -0.0133514F;
-	geracao.individuo[0].gene[12] = -0.0122249F;
-	geracao.individuo[0].gene[13] = -0.0112737F;
-	geracao.individuo[0].gene[14] = -0.0104598F;
-	geracao.individuo[0].gene[15] = -0.0097555F;
-	geracao.individuo[0].gene[16] = -0.0091401F;
-	geracao.individuo[0].gene[17] = -0.0085977F;
-	geracao.individuo[0].gene[18] = -0.0081161F;
-	geracao.individuo[0].gene[19] = -0.0076856F;
-	geracao.individuo[0].gene[20] = -0.0072985F;
-	geracao.individuo[0].gene[21] = -0.0069484F;
-	geracao.individuo[0].gene[22] = -0.0066305F;
-	geracao.individuo[0].gene[23] = -0.0063403F;
-	geracao.individuo[0].gene[24] = -0.0060745F;
-	geracao.individuo[0].gene[25] = -0.0058301F;
-	geracao.individuo[0].gene[26] = -0.0056045F;
-	geracao.individuo[0].gene[27] = -0.0053958F;
-	geracao.individuo[0].gene[28] = -0.0052021F;
-	geracao.individuo[0].gene[29] = -0.0050218F;
-	geracao.individuo[0].gene[30] = -0.0048536F;
-	geracao.individuo[0].gene[31] = -0.0046962F;
-	geracao.individuo[0].gene[32] = -0.0045488F;
-	geracao.individuo[0].gene[33] = -0.0044103F;
-	geracao.individuo[0].gene[34] = -0.0042801F;
-	geracao.individuo[0].gene[35] = -0.0041573F;
-	geracao.individuo[0].gene[36] = -0.0040413F;
-	geracao.individuo[0].gene[37] = -0.0039316F;
-	geracao.individuo[0].gene[38] = -0.0038278F;
-	geracao.individuo[0].gene[39] = -0.0037292F;
-	geracao.individuo[0].gene[40] = -0.0036357F;
-	geracao.individuo[0].gene[41] = -0.0035467F;
-	geracao.individuo[0].gene[42] = -0.0034619F;
-	geracao.individuo[0].gene[43] = -0.0033811F;
-	geracao.individuo[0].gene[44] = -0.003304F;
-	geracao.individuo[0].gene[45] = -0.0032304F;
-	geracao.individuo[0].gene[46] = -0.0031599F;
-	geracao.individuo[0].gene[47] = -0.0030925F;
-	geracao.individuo[0].gene[48] = -0.0030278F;
-	geracao.individuo[0].gene[49] = -0.0029659F;
-
-	// Indivíduo 1
-	geracao.individuo[1].gene[0] = -0.1389437F;
-	geracao.individuo[1].gene[1] = -0.9612598F;
-	geracao.individuo[1].gene[2] = 0.1954439F;
-	geracao.individuo[1].gene[3] = 0.0887042F;
-	geracao.individuo[1].gene[4] = 0.0573714F;
-	geracao.individuo[1].gene[5] = 0.042396F;
-	geracao.individuo[1].gene[6] = 0.0336202F;
-	geracao.individuo[1].gene[7] = 0.0278545F;
-	geracao.individuo[1].gene[8] = 0.0237768F;
-	geracao.individuo[1].gene[9] = 0.0207406F;
-	geracao.individuo[1].gene[10] = 0.018392F;
-	geracao.individuo[1].gene[11] = 0.0165212F;
-	geracao.individuo[1].gene[12] = 0.0149958F;
-	geracao.individuo[1].gene[13] = 0.0137283F;
-	geracao.individuo[1].gene[14] = 0.0126584F;
-	geracao.individuo[1].gene[15] = 0.0117432F;
-	geracao.individuo[1].gene[16] = 0.0109514F;
-	geracao.individuo[1].gene[17] = 0.0102596F;
-	geracao.individuo[1].gene[18] = 0.0096501F;
-	geracao.individuo[1].gene[19] = 0.0091089F;
-	geracao.individuo[1].gene[20] = 0.0086251F;
-	geracao.individuo[1].gene[21] = 0.0081902F;
-	geracao.individuo[1].gene[22] = 0.007797F;
-	geracao.individuo[1].gene[23] = 0.0074399F;
-	geracao.individuo[1].gene[24] = 0.007114F;
-	geracao.individuo[1].gene[25] = 0.0068155F;
-	geracao.individuo[1].gene[26] = 0.006541F;
-	geracao.individuo[1].gene[27] = 0.0062878F;
-	geracao.individuo[1].gene[28] = 0.0060535F;
-	geracao.individuo[1].gene[29] = 0.0058359F;
-	geracao.individuo[1].gene[30] = 0.0056335F;
-	geracao.individuo[1].gene[31] = 0.0054447F;
-	geracao.individuo[1].gene[32] = 0.0052681F;
-	geracao.individuo[1].gene[33] = 0.0051026F;
-	geracao.individuo[1].gene[34] = 0.0049472F;
-	geracao.individuo[1].gene[35] = 0.0048009F;
-	geracao.individuo[1].gene[36] = 0.0046631F;
-	geracao.individuo[1].gene[37] = 0.004533F;
-	geracao.individuo[1].gene[38] = 0.0044099F;
-	geracao.individuo[1].gene[39] = 0.0042933F;
-	geracao.individuo[1].gene[40] = 0.0041827F;
-	geracao.individuo[1].gene[41] = 0.0040777F;
-	geracao.individuo[1].gene[42] = 0.0039779F;
-	geracao.individuo[1].gene[43] = 0.0038828F;
-	geracao.individuo[1].gene[44] = 0.0037921F;
-	geracao.individuo[1].gene[45] = 0.0037056F;
-	geracao.individuo[1].gene[46] = 0.0036229F;
-	geracao.individuo[1].gene[47] = 0.0035439F;
-	geracao.individuo[1].gene[48] = 0.0034682F;
-	geracao.individuo[1].gene[49] = 0.0033957F;
-
-	// Indivíduo 2
-	geracao.individuo[2].gene[0] = -0.0795874F;
-	geracao.individuo[2].gene[1] = -0.14689F;
-	geracao.individuo[2].gene[2] = -0.9516369F;
-	geracao.individuo[2].gene[3] = 0.2124869F;
-	geracao.individuo[2].gene[4] = 0.0955734F;
-	geracao.individuo[2].gene[5] = 0.0616517F;
-	geracao.individuo[2].gene[6] = 0.0455018F;
-	geracao.individuo[2].gene[7] = 0.0360566F;
-	geracao.individuo[2].gene[8] = 0.0298586F;
-	geracao.individuo[2].gene[9] = 0.0254789F;
-	geracao.individuo[2].gene[10] = 0.0222197F;
-	geracao.individuo[2].gene[11] = 0.0196997F;
-	geracao.individuo[2].gene[12] = 0.0176931F;
-	geracao.individuo[2].gene[13] = 0.0160575F;
-	geracao.individuo[2].gene[14] = 0.0146987F;
-	geracao.individuo[2].gene[15] = 0.013552F;
-	geracao.individuo[2].gene[16] = 0.0125712F;
-	geracao.individuo[2].gene[17] = 0.0117228F;
-	geracao.individuo[2].gene[18] = 0.0109816F;
-	geracao.individuo[2].gene[19] = 0.0103287F;
-	geracao.individuo[2].gene[20] = 0.009749F;
-	geracao.individuo[2].gene[21] = 0.0092309F;
-	geracao.individuo[2].gene[22] = 0.0087651F;
-	geracao.individuo[2].gene[23] = 0.008344F;
-	geracao.individuo[2].gene[24] = 0.0079616F;
-	geracao.individuo[2].gene[25] = 0.0076127F;
-	geracao.individuo[2].gene[26] = 0.007293F;
-	geracao.individuo[2].gene[27] = 0.0069992F;
-	geracao.individuo[2].gene[28] = 0.0067281F;
-	geracao.individuo[2].gene[29] = 0.0064772F;
-	geracao.individuo[2].gene[30] = 0.0062443F;
-	geracao.individuo[2].gene[31] = 0.0060277F;
-	geracao.individuo[2].gene[32] = 0.0058255F;
-	geracao.individuo[2].gene[33] = 0.0056365F;
-	geracao.individuo[2].gene[34] = 0.0054593F;
-	geracao.individuo[2].gene[35] = 0.005293F;
-	geracao.individuo[2].gene[36] = 0.0051365F;
-	geracao.individuo[2].gene[37] = 0.0049889F;
-	geracao.individuo[2].gene[38] = 0.0048496F;
-	geracao.individuo[2].gene[39] = 0.0047179F;
-	geracao.individuo[2].gene[40] = 0.0045932F;
-	geracao.individuo[2].gene[41] = 0.0044748F;
-	geracao.individuo[2].gene[42] = 0.0043625F;
-	geracao.individuo[2].gene[43] = 0.0042556F;
-	geracao.individuo[2].gene[44] = 0.0041538F;
-	geracao.individuo[2].gene[45] = 0.0040568F;
-	geracao.individuo[2].gene[46] = 0.0039642F;
-	geracao.individuo[2].gene[47] = 0.0038758F;
-	geracao.individuo[2].gene[48] = 0.0037912F;
-	geracao.individuo[2].gene[49] = 0.0037102F;
-
-	float *matriz_Identidade;
-	matriz_Identidade = (float *)malloc(parametrosGA.numGenes*parametrosGA.numGenes*sizeof(float));
-	GeraMatrizIdentidade(matriz_Identidade, parametrosGA.numGenes);
-	Fitness_Serial(&geracao, &parametrosGA, H, parametrosGA.numGenes, 0.01F, 0.1F, matriz_Identidade);
-	free(matriz_Identidade);
-
-	printf("\n"); printf("Geracao depois = ");
-
-	imprimeGeracao(&geracao, &parametrosGA);
-
-	*/
-}
-
 // =========================================================================================================
 void SelecaoViaRoleta_serial(	struct generation *host_PopulacaoAntes,
 										struct generation *host_PopulacaoDepois,
@@ -1034,32 +803,14 @@ void SelecaoViaRoleta_serial(	struct generation *host_PopulacaoAntes,
 
 	for (iIndividuo = 0; iIndividuo < host_parametrosGA->numIndividuos; iIndividuo++) {
 		
-		//printf("\n"); printf("00 - SelecaoViaRoleta_serial - individuo = %d", iIndividuo);
-		
 		fatorRoleta = (float)rand() / (float)RAND_MAX;
-		//printf("\n"); printf("01 - SelecaoViaRoleta_serial - fatorRoleta = %f", fatorRoleta);
-		
-		//printf("\n"); printf("02 - SelecaoViaRoleta_serial - host_PopulacaoAntes->sumFitness = %f", host_PopulacaoAntes->sumFitness);
-
 		vlrRoleta =  fatorRoleta * host_PopulacaoAntes->sumFitness;
-		//printf("\n"); printf("03 - SelecaoViaRoleta_serial - vlrRoleta = %f", vlrRoleta);
-		
 		iSelecionado = -1.0F;
-		
 		sumRoleta = 0;
-		//printf("\n"); printf("04 - SelecaoViaRoleta_serial - sumRoleta = %f", sumRoleta);
 		do {
 			iSelecionado = iSelecionado + 1;
-			//printf("\n"); printf("05 - SelecaoViaRoleta_serial - iSelecionado = %d", (unsigned short int)iSelecionado);
-
-			//printf("\n"); printf("06 - SelecaoViaRoleta_serial - individuo[iSelecionado].fitness = %f", host_PopulacaoAntes->individuo[(unsigned short int)iSelecionado].fitness);
-
 			sumRoleta = sumRoleta + host_PopulacaoAntes->individuo[(unsigned short int)iSelecionado].fitness;
-			//printf("\n"); printf("07 - SelecaoViaRoleta_serial - sumRoleta = %f", sumRoleta);
-
 		} while (sumRoleta <= vlrRoleta);
-		
-		//printf("\n"); printf("08 - SelecaoViaRoleta_serial - iSelecionado = %d", (unsigned short int)iSelecionado);
 		// Grava o individuo selecionado (iSelecionado) na próxima geração na posicao iIndividuo.
 		host_PopulacaoDepois->individuo[iIndividuo] = host_PopulacaoAntes->individuo[(unsigned short int)iSelecionado];
 	};
@@ -1070,7 +821,6 @@ void SelecaoViaRoleta_serial(	struct generation *host_PopulacaoAntes,
 void Selecao_Por_Torneio_serial(	struct generation *PopulacaoAntes,
 											struct generation *PopulacaoDepois,
 											struct parametros *parametrosGA) {
-											//struct testeGeracao_s *h_testeGeracao_s) {
 //=========================================================================================================
 
 	unsigned short int iIndividuo;
@@ -1082,25 +832,17 @@ void Selecao_Por_Torneio_serial(	struct generation *PopulacaoAntes,
 	for (iIndividuo = 0; iIndividuo < parametrosGA->numIndividuos; iIndividuo++) {
 		
 		melhorFitness = -1.0F;
-		//h_testeGeracao_s->individuo[iIndividuo].iIndividuo_Vencedor = 9999; // apenas para teste
 
 		for (iTamanhoDoTorneio = 0; iTamanhoDoTorneio < parametrosGA->tamanho_torneio; iTamanhoDoTorneio++) {
 			
 			iIndividuo_para_Torneio = Randomico_int(0,parametrosGA->numIndividuos);
-			//printf("\n===> SELECAO -- iIndividuo[%d,%d] para o torneio %d", iTamanhoDoTorneio, iIndividuo_para_Torneio, iIndividuo);
 
 			Individuo = &PopulacaoAntes->individuo[iIndividuo_para_Torneio];
-			//h_testeGeracao_s->individuo[iIndividuo].teste_iIndividuo_para_Torneio[iTamanhoDoTorneio] = iIndividuo_para_Torneio;
-			//printf("\n===> SELECAO -- Individuo.Fitness = [%f]", Individuo->fitness);
-			//printf("\n===> SELECAO -- melhorFitness    = [%f]", melhorFitness);
 
 			if (Individuo->fitness > melhorFitness) {
 				melhorFitness = Individuo->fitness;
 				PopulacaoDepois->individuo[iIndividuo] = *Individuo;
-				//h_testeGeracao_s->individuo[iIndividuo].iIndividuo_Vencedor = iIndividuo_para_Torneio;
 			};
-
-			//printf("\n===> SELECAO -- melhorFitness    = [%f]", melhorFitness);
 		};
 	};
 };
@@ -1109,7 +851,6 @@ void Selecao_Por_Torneio_serial(	struct generation *PopulacaoAntes,
 void CrossOver1Ponto_serial(	struct generation *g0,
 										struct generation *g1,
 										struct parametros *parametrosGA ) {
-										//struct testeGeracao_s *host_TesteGeracao_s) {
 //=========================================================================================================
 	unsigned short int iIndividuo, idx_Pai, idx_Mae;
 	unsigned long int iGene, ponto_de_corte;
@@ -1124,41 +865,20 @@ void CrossOver1Ponto_serial(	struct generation *g0,
 		// o Crossover não acontece (pra apenas repassar os indivíduos).
 
 		idx_Pai = Randomico_int(0, parametrosGA->numIndividuos - 1);
-		//idx_Pai = iIndividuo;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("idx_Pai =\t%d", idx_Pai);
-		
-		//host_TesteGeracao_s->individuo[iIndividuo].idx_Pai = idx_Pai;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].idx_Pai =\t%d", host_TesteGeracao_s->individuo[iIndividuo].idx_Pai);
-		
 		idx_Mae = Randomico_int(0, parametrosGA->numIndividuos - 1);
-		//printf("\nCrossOver1Ponto_serial\t"); printf("idx_Mae =\t%d", idx_Mae);
-		//host_TesteGeracao_s->individuo[iIndividuo].idx_Mae = idx_Mae;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].idx_Mae =\t%d", host_TesteGeracao_s->individuo[iIndividuo].idx_Mae);
 
 		Pai = &g0->individuo[idx_Pai];
 		Mae = &g0->individuo[idx_Mae];
 
 		p_aux = (float)((float)rand() / (float)RAND_MAX);
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("p_aux =\t%f", p_aux);
-		//host_TesteGeracao_s->individuo[iIndividuo].p = p_aux;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].p =\t%f", host_TesteGeracao_s->individuo[iIndividuo].p);
 
 		f = -1.0F;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("f =\t%f", f);
-		//host_TesteGeracao_s->individuo[iIndividuo].f = f;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].f =\t%f", host_TesteGeracao_s->individuo[iIndividuo].f);
 
 		ponto_de_corte = Randomico_int(0, (parametrosGA->numGenes-1));
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("ponto_de_corte =\t%d", ponto_de_corte);
-		//host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0] = ponto_de_corte;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0] =\t%d", host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0]);
-		//host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1] = 0;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1] =\t%d", host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1]);
 	
 		if (p_aux <= parametrosGA->probCrossOver) {
 			
 			f = (float)((float)rand()/(float)RAND_MAX);
-			//host_TesteGeracao_s->individuo[iIndividuo].f = f;			
 
 			for (iGene = 0; iGene < ponto_de_corte; iGene++) {
 				g1->individuo[iIndividuo    ].gene[iGene] = Pai->gene[iGene];				
@@ -1184,7 +904,6 @@ void CrossOver1Ponto_serial(	struct generation *g0,
 void CrossOver2Pontos_serial(	struct generation *g0,
 										struct generation *g1,
 										struct parametros *parametrosGA) {
-										// struct testeGeracao_s *host_TesteGeracao_s) {
 //=========================================================================================================
 	unsigned short int iIndividuo, idx_Pai, idx_Mae;
 	unsigned long int iGene;
@@ -1199,28 +918,14 @@ void CrossOver2Pontos_serial(	struct generation *g0,
 		// o Crossover não acontece (pra apenas repassar os indivíduos).
 
 		idx_Pai = Randomico_int(0, parametrosGA->numIndividuos - 1);
-		//idx_Pai = iIndividuo;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("idx_Pai =\t%d", idx_Pai);
-		//host_TesteGeracao_s->individuo[iIndividuo].idx_Pai = idx_Pai;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].idx_Pai =\t%d", host_TesteGeracao_s->individuo[iIndividuo].idx_Pai);
-		
 		idx_Mae = Randomico_int(0, parametrosGA->numIndividuos - 1);
-		//printf("\nCrossOver1Ponto_serial\t"); printf("idx_Mae =\t%d", idx_Mae);
-		//host_TesteGeracao_s->individuo[iIndividuo].idx_Mae = idx_Mae;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].idx_Mae =\t%d", host_TesteGeracao_s->individuo[iIndividuo].idx_Mae);
 
 		Pai = &g0->individuo[idx_Pai];
 		Mae = &g0->individuo[idx_Mae];
 
 		p_aux = (float)((float)rand() / (float)RAND_MAX);
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("p_aux =\t%f", p_aux);
-		//host_TesteGeracao_s->individuo[iIndividuo].p = p_aux;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].p =\t%f", host_TesteGeracao_s->individuo[iIndividuo].p);
 
 		f = -1.0F;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("f =\t%f", f);
-		//host_TesteGeracao_s->individuo[iIndividuo].f = f;
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].f =\t%f", host_TesteGeracao_s->individuo[iIndividuo].f);
 
 		// Com a utilização de 'g1->individuo[iIndividuo].pontos_de_corte[0]'
 		// no segundo Randomico eu garanto que ponto1 >= ponto2.
@@ -1228,16 +933,9 @@ void CrossOver2Pontos_serial(	struct generation *g0,
 		g1->individuo[iIndividuo].pontos_de_corte[0] = Randomico_int(0, (parametrosGA->numGenes-1));
 		g1->individuo[iIndividuo].pontos_de_corte[1] = Randomico_int(g1->individuo[iIndividuo].pontos_de_corte[0], (parametrosGA->numGenes-1));
 
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("ponto_de_corte =\t%d", ponto_de_corte);
-		//host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0] = g1->individuo[iIndividuo].pontos_de_corte[0];
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0] =\t%d", host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[0]);
-		//host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1] = g1->individuo[iIndividuo].pontos_de_corte[1];
-		// TESTE - printf("\nCrossOver1Ponto_serial\t"); printf("host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1] =\t%d", host_TesteGeracao_s->individuo[iIndividuo].pontos_de_corte[1]);
-	
 		if (p_aux <= parametrosGA->probCrossOver) {
 			
 			f = (float)((float)rand()/(float)RAND_MAX);
-			//host_TesteGeracao_s->individuo[iIndividuo].f = f;			
 
 			for (iGene = 0; iGene < g1->individuo[iIndividuo].pontos_de_corte[0]; iGene++) {
 				g1->individuo[iIndividuo    ].gene[iGene] = Pai->gene[iGene];				
@@ -1265,7 +963,6 @@ void CrossOver2Pontos_serial(	struct generation *g0,
 //---------------------------------------------------------------------------------------
 void Mutacao_Serial(	struct generation *geracao,
 							struct parametros *parametrosGA) {
-							//struct testeGeracao_s *host_testeGeracao) {
 //---------------------------------------------------------------------------------------
 
 	/*
@@ -1285,31 +982,25 @@ void Mutacao_Serial(	struct generation *geracao,
 		for (iGene = 0; iGene < parametrosGA->numGenes; iGene++) {
 	
 			pAux = (float)((float)rand() / (float)RAND_MAX);
-			//host_testeGeracao->individuo[iIndividuo].gene_pAux[iGene] = pAux;
 	
 			if (pAux <= parametrosGA->probMutacao) {
-			//	printf("# OCORRERA MUTACAO NESSE GENE#\n");	
 				L = Randomico_int(0, 10);
-				//host_testeGeracao->individuo[iIndividuo].gene_L[iGene] = L;
 					// No artigo esse L é definido como um número
 					// randômico inteiro. Nada é dito sobre os limites
 					// inferior ou superior de L. Decidi arbitrariamente
 					// que L = (0, 10].
 				r = (float)((float)rand() / (float)RAND_MAX) + 0.000002;
-				//host_testeGeracao->individuo[iIndividuo].gene_r[iGene] = r;
 					// r é um número randômico entre zero e 1. Como
 					// rand() = (0, RAND_MAX), a expressão acima funciona
 					// quase perfeitamente. Quase pois nunca retornará
 					// o zero.
 				termo_do_L = (int)pow((float)(-1),(int)L);
-				//host_testeGeracao->individuo[iIndividuo].gene_termo_do_L[iGene] = termo_do_L;
 					// é o (-1) elevado ao L. Só pode ser + ou - 1,
 					// portanto, um inteiro.
 
 				geracao->individuo[iIndividuo].gene[iGene] =
 						geracao->individuo[iIndividuo].gene[iGene] +
 						(float)(termo_do_L * r * intensidadeMutacao);
-						//(float)(termo_do_L * r * parametrosGA->intensidadeMutacao);
 								// parametrosGA->intensidadeMutacao é o 
 								// DELTA da equação 10 do artigo.
 			}
@@ -1321,7 +1012,6 @@ void Mutacao_Serial(	struct generation *geracao,
 void GeraPopulacaoInicial_serial(
 						struct generation *GeracaoInicial,
 						struct parametros *parametrosGA ) {
-						//struct testeGeracao_s *host_testeGeracao) {
 //---------------------------------------------------------------------------------------
 
 	unsigned short int iIndividuo, qtdePontosCorte, iPontoCorte;
@@ -1351,13 +1041,7 @@ void GeraPopulacaoInicial_serial(
 			GeracaoInicial->individuo[iIndividuo].pontos_de_corte[iPontoCorte] = 11111;
 		}
 
-		for (iGene = 0; iGene < parametrosGA->numGenes; iGene++) {			
-		
-			//host_testeGeracao->individuo[iIndividuo].gene_L[iGene] = 11111;
-			//host_testeGeracao->individuo[iIndividuo].gene_pAux[iGene] = 1.0F;
-			//host_testeGeracao->individuo[iIndividuo].gene_r[iGene] = 1.0F;
-			//host_testeGeracao->individuo[iIndividuo].gene_termo_do_L[iGene] = 11111;
-		
+		for (iGene = 0; iGene < parametrosGA->numGenes; iGene++) {					
 			L = Randomico_int(0, 2);
 			sinal = (short int)pow(-1.0F, (float)L);
 			GeracaoInicial->individuo[iIndividuo].gene[iGene] = (float) sinal * rand() / RAND_MAX;
@@ -1370,7 +1054,6 @@ void GeraPopulacaoInicial_serial(
 void GeraPopInicial_vetsOrtonormais(
 						struct generation *GeracaoInicial,
 						struct parametros *parametrosGA) {
-						//struct testeGeracao_s *host_testeGeracao) {
 //---------------------------------------------------------------------------------------
 
 	unsigned short int iIndividuo, qtdePontosCorte, iPontoCorte;
@@ -1408,20 +1091,14 @@ void GeraPopInicial_vetsOrtonormais(
 			L = Randomico_int(0, 2);
 			sinal = (short int)pow(-1.0F, (float)L);
 
-			//flutuacao = (float) (sinal * rand()/RAND_MAX)*(float)0.01F;
 			flutuacao = (float) sinal * 0.00001F;
 
 			if (iGene == iIndividuo)
 				GeracaoInicial->individuo[iIndividuo].gene[iGene] = 1.0F;
 			else
 				GeracaoInicial->individuo[iIndividuo].gene[iGene] = flutuacao;
-	
 		}
-
-	}
-
-	
-	
+	}	
 }
 
 //---------------------------------------------------------------------------------------
@@ -1440,171 +1117,6 @@ void teste_GeraPopInicial_vetsOrtonormais(void) {
 
 	imprimeGeracao(&geracaoInicial, &parametrosGA);
 
-}
-//---------------------------------------------------------------------------------------
-void teste_GeraPopulacaoInicial_serial(void) {
-//---------------------------------------------------------------------------------------
-	//TODO: deve ser alterada para inicialização manua dos parâmetros
-
-	struct generation				geracaoTeste;
-	struct parametros				parametrosGA;
-	//struct parametros_Metodo	parametrosMetodo;
-	//struct testeGeracao_s		host_testeGeracao_s;
-	
-	//inicializa_Parametros(&parametrosGA, &parametrosMetodo);
-	GeraPopulacaoInicial_serial(&geracaoTeste, &parametrosGA); // , &host_testeGeracao_s);
-
-	imprimeGeracao(&geracaoTeste, &parametrosGA);
-
-}
-
-//===========================================================================================
-void testeSelecao_serial(	unsigned int flag_Momento,
-									struct generation *host_Geracao,
-									struct parametros *host_ParametrosGA,
-									struct testeGeracao_s *host_testeSelecao) {
-//===========================================================================================
-
-	if (flag_Momento == 0) {
-		// antes da seleção atuar
-		// apenas imprimo a geracao.
-		printf("\n");	printf("Teste Selecao - Populacao Antes");
-		printf("\n");	printf("-----------------------------------------------------------");
-		imprimeGeracao(host_Geracao, host_ParametrosGA);
-	}
-	else if (flag_Momento == 1) {
-		unsigned int iIndividuo;
-		int iTorneio;
-		printf("\n");	printf("Teste Selecao - Populacao Depois");
-		printf("\n");	printf("-----------------------------------------------------------");
-		printf("\n");	printf("#");
-		printf("\t");	printf("Individuo 0");
-		printf("\t");	printf("Individuo 1");
-		printf("\t");	printf("Vencedor");
-		for (iIndividuo = 0; iIndividuo < host_ParametrosGA->numIndividuos; iIndividuo++) {
-			printf("\n");	printf("%d", iIndividuo);
-			for (iTorneio = 0; iTorneio < host_ParametrosGA->tamanho_torneio; iTorneio++) {
-				printf("\t");	printf("%d", host_testeSelecao->individuo[iIndividuo].teste_iIndividuo_para_Torneio[iTorneio]);
-			}
-			printf("\t");	printf("%d", host_testeSelecao->individuo[iIndividuo].iIndividuo_Vencedor);
-		}
-	}
-}
-
-
-//===========================================================================================
-void testeCrossOver_serial(	unsigned int flag_Momento,
-										struct generation *host_Geracao,
-										struct parametros *host_ParametrosGA,
-										struct testeGeracao_s *host_testeGeracao) {
-//===========================================================================================
-	
-	if (flag_Momento == 2) { // antes da aplicação da CrossOver
-		printf("\n");	printf("Teste Crossover - Proxima Populacao Antes de receber os novos genes");
-		printf("\n");	printf("-----------------------------------------------------------");
-
-		imprimeGeracao(host_Geracao, host_ParametrosGA);
-	}
-
-	if (flag_Momento == 0) { // antes da aplicação da CrossOver
-		printf("\n");	printf("Teste Crossover - Populacao Antes");
-		printf("\n");	printf("-----------------------------------------------------------");
-
-		imprimeGeracao(host_Geracao, host_ParametrosGA);
-	}
-	else if (flag_Momento == 1) { // depois da aplicação da CrossOver
-		
-		printf("\n");	printf("Teste Crossover - Termos auxiliares");
-		printf("\n");	printf("-----------------------------------------------------------");
-
-		unsigned int iIndividuo;
-
-		printf("\n");	printf("iIndividuo");
-		printf("\t");	printf("idx_Pai");
-		printf("\t");	printf("idx_Mae");
-		printf("\t");	printf("p");
-		printf("\t");	printf("f");
-		printf("\t");	printf("pontos_de_corte[0]");
-		printf("\t");	printf("pontos_de_corte[1]");
-
-		for (iIndividuo = 0; iIndividuo < host_ParametrosGA->numIndividuos; iIndividuo++) {
-			printf("\n");	printf("%d", iIndividuo);
-			printf("\t");	printf("%d", host_testeGeracao->individuo[iIndividuo].idx_Pai);
-			printf("\t");	printf("%d", host_testeGeracao->individuo[iIndividuo].idx_Mae);
-			printf("\t");	printf("%f", host_testeGeracao->individuo[iIndividuo].p);
-			printf("\t");	printf("%f", host_testeGeracao->individuo[iIndividuo].f);
-			printf("\t");	printf("%d", host_testeGeracao->individuo[iIndividuo].pontos_de_corte[0]);
-			printf("\t");	printf("%d", host_testeGeracao->individuo[iIndividuo].pontos_de_corte[1]);
-		}
-
-		printf("\n");	printf("Teste Crossover - Populacao Depois");
-		printf("\n");	printf("-----------------------------------------------------------");
-		imprimeGeracao(host_Geracao, host_ParametrosGA);
-	}
-}
-
-//===========================================================================================
-void testeMutacao(int flag_Momento,
-						struct generation *host_Geracao,
-						struct parametros *host_parametros,
-						struct testeGeracao_s *host_testeGeracao) {
-//===========================================================================================
-	
-	unsigned int iIndividuo, iGene;
-	
-	//struct generation host_Geracao;
-	//cudaErrorCheck(cudaMemcpy(&host_Geracao, dev_Geracao, sizeof(struct generation), cudaMemcpyDeviceToHost));
-
-	if (flag_Momento == 0) { // antes da Mutacao
-		printf("\n");	printf("===========================================================");
-		printf("\n");	printf("TESTE MUTACAO: antes da devMutacao");
-		printf("\n");	printf("===========================================================");
-		for (iIndividuo = 0; iIndividuo < host_parametros->numIndividuos; iIndividuo++) {
-			
-			printf("\n");	printf("Individuo %d", iIndividuo);
-			printf("\n");	printf("-----------------------------------------------------------");
-			printf("\n");	printf("iGene");
-			printf("\t");	printf("Gene");
-			//printf("\t");	printf("pAux");
-			//printf("\t");	printf("L");
-			//printf("\t");	printf("r");
-			//printf("\t");	printf("Termo do L");
-
-			for (iGene = 0; iGene < host_parametros->numGenes; iGene++) {
-				printf("\n");	printf("%d", iGene);
-				printf("\t");	printf("%f", host_Geracao->individuo[iIndividuo].gene[iGene]);
-				//printf("\t");	printf("%f", host_Geracao->individuo[iIndividuo].gene_pAux[iGene]);
-				//printf("\t");	printf("%f", host_Geracao->individuo[iIndividuo].gene_L[iGene]);
-				//printf("\t");	printf("%f", host_Geracao->individuo[iIndividuo].gene_r[iGene]);
-				//printf("\t");	printf("%f", host_Geracao->individuo[iIndividuo].gene_termo_do_L[iGene]);
-			}
-		}
-	} 
-	else if (flag_Momento == 1) { // depois da mutacao
-		printf("\n");	printf("===========================================================");
-		printf("\n");	printf("TESTE MUTACAO: depois da devMutacao");
-		printf("\n");	printf("===========================================================");
-		for (iIndividuo = 0; iIndividuo < host_parametros->numIndividuos; iIndividuo++) {
-			
-			printf("\n");	printf("Individuo %d", iIndividuo);
-			printf("\n");	printf("-----------------------------------------------------------");
-			printf("\n");	printf("iGene");
-			printf("\t");	printf("Gene");
-			printf("\t");	printf("pAux");
-			printf("\t");	printf("L");
-			printf("\t");	printf("r");
-			printf("\t");	printf("Termo do L");
-
-			for (iGene = 0; iGene < host_parametros->numGenes; iGene++) {
-				printf("\n");	printf("%d", iGene);
-				printf("\t");	printf("%f", host_Geracao->individuo[iIndividuo].gene[iGene]);
-				printf("\t");	printf("%f", host_testeGeracao->individuo[iIndividuo].gene_pAux[iGene]);
-				printf("\t");	printf("%d", host_testeGeracao->individuo[iIndividuo].gene_L[iGene]);
-				printf("\t");	printf("%f", host_testeGeracao->individuo[iIndividuo].gene_r[iGene]);
-				printf("\t");	printf("%d", host_testeGeracao->individuo[iIndividuo].gene_termo_do_L[iGene]);
-			}
-		}
-	}
 }
 
 //---------------------------------------------------------------------------------------
@@ -1684,13 +1196,13 @@ unsigned short int atingiuCriterioDeParada(
 
 	unsigned short int flagAtingiuTolerancia = 0; // falso
 
-	if (tipoFitness == 0 || tipoFitness == 2) {
+	if (tipoFitness == 0 || tipoFitness == 2|| tipoFitness == 4) {
 		if ( (geracao->gradRhoMedio <= tolerancia) || (geracao->difRho <= tolerancia) ) {
 			flagAtingiuTolerancia = 1; // verdadeiro
 		}
 	}
 	else {
-		if (tipoFitness == 1) {
+		if ( (tipoFitness == 1) || (tipoFitness == 3) ) {
 			if (geracao->gradRhoMedio <= tolerancia) {	
 				flagAtingiuTolerancia = 1; // verdadeiro
 			}

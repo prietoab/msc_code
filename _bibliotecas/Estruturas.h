@@ -8,6 +8,7 @@ struct parametrosPrograma {
 	unsigned short int parmQtdeIndividuos; // número de indivíduos por geração
 	char parmTipoFitnessEquacao;
 	char parmTipoFitnessParalelo;
+	char parmTipoCalculoGradRho;
 	char parmTamanhoTorneio;
 	float	parmProbCrossOver;
 	unsigned short int parmQtdePontosCorte;
@@ -63,31 +64,6 @@ struct parametros_Metodo {
 	float							rho_minimo;
 };
 
-// - testes seleçao e crossover - pode ser removido
-struct individuo_s {
-	unsigned int				*teste_iIndividuo_para_Torneio;
-	int							iIndividuo_Vencedor;
-	unsigned int				idx_Pai;
-	unsigned int				idx_Mae;
-	float							p;
-	float							f;
-	unsigned int				*pontos_de_corte;
-	unsigned int				i_Gene_Global; // alocar constNumGenes
-	unsigned int				Primeiro_Gene_Individuo_Global;
-	unsigned int				Ultimo_Gene_Individuo_Global;
-	unsigned int				Ponto_de_Corte_Individuo_Global;
-		// para o teste da mutação
-	unsigned short int		*gene_L; // alocar constNumGenes;
-	int							*gene_termo_do_L; // alocar constNumGenes;
-	float							*gene_r; // alocar constNumGenes;
-	float							*gene_pAux; // alocar constNumGenes
-};
-
-struct testeGeracao_s {
-	struct individuo_s		*individuo; // alocar constNumIndividuos
-};
-// - teste seleçao e crossover - pode ser removido
-
 //=====================================================================================
 float getLambda(unsigned short int N) {
 //=====================================================================================
@@ -131,11 +107,16 @@ void inicializa_Parametros(struct parametrosPrograma *parmsPgm,
 	printf("| Numero de individuos na populacao: %d \n"					, parmsPgm->parmQtdeIndividuos);
 	printf("| Tipo da equacao do Fitness: %d \n"								, parmsPgm->parmTipoFitnessEquacao);
 	printf("|    0: Apenas com (rho - rho_0)^2 \n");
-	printf("|    1: Apenas com o gradiente de rho \n");
-	printf("|    2: Com (rho - rho_0)^2 + grad(rho) \n");
+	printf("|    1: Apenas com o (gradiente de rho)^2 \n");
+	printf("|    2: Com (rho - rho_0)^2 + (grad(rho))^2 \n");
+	printf("|    3: Apenas com grad(rho) \n");
+	printf("|    4: Com (rho - rho_0)^2 + grad(rho) \n");
 	printf("| Tipo da funcao Fitness no programa paralelo: %d \n"		, parmsPgm->parmTipoFitnessParalelo);
 	printf("|    0: 1d, dim3(X,1,1) \n");
 	printf("|    1: 2d, dim3(X,Y,1) \n");
+	printf("| Tipo do Calculo do Gradiente de rho: %d \n" , parmsPgm->parmTipoCalculoGradRho);
+	printf("|    0: usa matriz identidade \n");
+	printf("|    1: nao usa matriz identidade (consome menos memoria) \n");
 	printf("| Tamanho do torneio para a Selecao: %d \n"					, parmsPgm->parmTamanhoTorneio);
 	printf("| Probabilidade de Crossover: %f \n"								, parmsPgm->parmProbCrossOver);
 	printf("| Quantidade de pontos de corte para o CrossOver: %d \n"	, parmsPgm->parmQtdePontosCorte);
@@ -181,56 +162,6 @@ void inicializa_Parametros(struct parametrosPrograma *parmsPgm,
 
 }
 
-//---------------------------------------------------------------------------------------
-void testa_inicializa_Parametros(void) {
-//---------------------------------------------------------------------------------------
-	//TODO: alterar a inicialização de parâmetros
-
-	/*
-
-	struct parametros parametros_GA;
-	struct parametros_Metodo parametros_Metodo;
-
-	unsigned long int globalNumGeracoes = 1;
-
-	inicializa_Parametros(&parametros_GA, &parametros_Metodo);
-
-	printf("\n"); printf("Imprimindo fora da inicializa...");
-
-	printf("\n");
-	printf("+=====================================================+\n");
-	printf("| PARAMETROS DO METODO                                 \n");
-	printf("+=====================================================+\n");
-	printf("| Fitness                                              \n");
-	printf("|    Lambda .......................: %f                \n", parametros_Metodo.lambda);
-	printf("|    Rho minimo ...................: %f                \n", parametros_Metodo.rho_minimo);
-	printf("+=====================================================+\n");
-	printf("| PARAMETROS DO ALGORITMO GENETICO                     \n");
-	printf("+=====================================================+\n");
-	printf("| Tamanho do cromossomo ...........: %04d              \n", parametros_GA.numGenes);
-	printf("| Numero de individuos por geracao : %04d              \n", parametros_GA.numIndividuos);
-	printf("| Numero maximo de geracoes .......: %04d              \n", globalNumGeracoes);
-	printf("| Máximo gene (populaão inicial) ..: %f              \n", parametros_GA.vlrMaximoGene);
-	printf("| Seleção? ........................: Sim               \n");
-	printf("|    Metodo de selecao ............: Torneio           \n");
-	printf("|    Tamanho do Torneio ...........: %d                \n", parametros_GA.tamanho_torneio);
-	printf("| Crossover? ......................: Sim               \n");
-	printf("|    Probabilidade de Crossover ...: %f                \n", parametros_GA.probCrossOver);
-	printf("|    Quantidade de Pontos de Corte.: %d                \n", parametros_GA.qtde_Pontos_de_Corte);
-	printf("| Mutacao? ........................: Sim               \n");
-	printf("|    Probabilidade de Mutacao .....: %f                \n", parametros_GA.probMutacao);
-	printf("|    Intensidade   da Mutacao .....: %f                \n", parametros_GA.intensidadeMutacao);
-	printf("| Criterio de parada ..............: Numero maximo     \n");
-	printf("|                                    de geracoes       \n");
-	printf("+=====================================================+\n");
-	printf("| OUTROS PARAMETROS                                    \n");
-	printf("+=====================================================+\n");
-	printf("| RAND_MAX ........................: %d                \n", RAND_MAX);
-	printf("| CLOCKS_PER_SEC...................: %d                \n", CLOCKS_PER_SEC);
-	printf("+=====================================================+\n\n");
-
-	*/
-}
 
 //=======================================================================================
 void ImprimeGenesDoIndividuo(	struct individual *Individuo,
@@ -243,24 +174,6 @@ void ImprimeGenesDoIndividuo(	struct individual *Individuo,
 	//		0: insere o caracter de tabulacao ANTES do valor do gene
 	//		1: insere o caracter de tabulacao DEPOIS do valor do gene
 	//		9: não insere caracter de tabulação
-
-	/*
-	printf("\n");
-	printf("===> Ponteiro do *Individuo na ImprimeGenesDoIndividuo:\t%p", Individuo);
-	printf("\n");
-	printf("===> Ponteiro do *prt_host_ParametrosGA na ImprimeGenesDoIndividuo:\t%p", prt_host_ParametrosGA);
-	printf("\n");
-	*/
-	// Endereços dos genes pra teste
-	/*
-	printf("\n");
-	for (iGene = 0; iGene < prt_host_ParametrosGA->numGenes; iGene++) {
-		if (flagTabulacao == 0) printf("\t");
-		printf("%p", &Individuo->gene[iGene]);
-		if (flagTabulacao == 1) printf("\t");
-	};
-	printf("\n");
-	*/
 
 	for (iGene = 0; iGene < prt_host_ParametrosGA->numGenes; iGene++) {
 		if (flagTabulacao == 0) printf("\t");
@@ -314,23 +227,6 @@ void imprimeGeracao(	struct generation *host_Geracao,
 							struct parametros *host_ParametrosGA) {
 //===========================================================================================
 
-//	printf("\n");	printf("*====================================================");
-//	printf("\n");  printf(" IMPRIME GERACAO - INICIO");
-//	printf("\n");  printf("*====================================================");
-//	printf("\n");  printf("ATRIBUTOS DA GERACAO");
-//	printf("\n");  printf("------------------------------");
-//	printf("\n");  printf("\t\tSoma do fitnes dos individuos: \t%1.6f", host_Geracao->sumFitness);
-//	printf("\n");  printf("\t\tFitness medio da geracao ....: \t%1.6f", host_Geracao->FitnessMedio);
-//	printf("\n");  printf("\t\tMelhor cociente de Rayleigh .: \t%1.6f", host_Geracao->melhores.Melhor_cociente_Rayleigh);
-//	printf("\n");  printf("\t\tPosicao do melhor individuo .: \t%d", host_Geracao->melhores.idxMelhorIndividuo);
-//	printf("\n");   
-//	printf("\n");  printf("MELHOR INDIVIDUO DA GERACAO");
-//	printf("\n");  printf("------------------------------");
-//	printf("\n");  imprimeIndividuo(&host_Geracao->melhores.MelhorIndividuo, host_ParametrosGA, 0);
-//	printf("\n");   
-//	printf("\n");  printf("TODOS OS INDIVIDUOS DA GERACAO");
-//	printf("\n");  printf("------------------------------");
-	
 	unsigned int iIndividuo;
 	unsigned int flagCabecalho = 0;
 	for (iIndividuo = 0; iIndividuo < host_ParametrosGA->numIndividuos; iIndividuo++) {
@@ -339,8 +235,4 @@ void imprimeGeracao(	struct generation *host_Geracao,
 		}
 		printf("\n"); imprimeIndividuo(iIndividuo, &host_Geracao->individuo[iIndividuo], host_ParametrosGA, flagCabecalho);
 	}
-
-//	printf("\n");	printf("+====================================================");
-//	printf("\n");  printf("+IMPRIME GERACAO - FIM");
-//	printf("\n");  printf("+====================================================");
 }

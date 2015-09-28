@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
 	parmsPrograma.parmFlagImprimeTempo						= atoi(argv[17]);
 	parmsPrograma.parmFlagNovaSemente						= atoi(argv[18]);
 	parmsPrograma.parmSemente									= atoi(argv[19]);
+	parmsPrograma.parmTipoCalculoGradRho					= atoi(argv[20]);
 
 	// Interface entre os parãmetros e as variáveis locais
 	int flagAtingiuTolerancia = 0; // falso.
@@ -47,6 +48,7 @@ int main(int argc, char *argv[]) {
 	unsigned short int flagImprimeTempo = parmsPrograma.parmFlagImprimeTempo;
 	unsigned short int flagSemente = parmsPrograma.parmFlagNovaSemente;
 	unsigned long int Semente = parmsPrograma.parmSemente;
+	char TipoCalculoGradRho = parmsPrograma.parmTipoCalculoGradRho;
 
 	// Definição das variáveis utilizadas para marcar o tempo.
 	// São do tipo clock_t, pois marcarei diretamente o clock
@@ -62,8 +64,6 @@ int main(int argc, char *argv[]) {
 	struct parametros_Metodo	parametrosMetodo;
 
 	inicializa_Parametros(&parmsPrograma, &parametrosGA, &parametrosMetodo);
-
-	return 0 ;
 
 	// Alocando memória para as gerações e suas repectivas
 	// estruturas internas dinâmicas.
@@ -106,8 +106,13 @@ int main(int argc, char *argv[]) {
 	// MATRIZ IDENTIDADE
 	time_i = clock();
 	float *MatrizIdentidade;
-	MatrizIdentidade = (float *)malloc(parametrosGA.numGenes * parametrosGA.numGenes * sizeof(float));
-	GeraMatrizIdentidade(MatrizIdentidade, parametrosGA.numGenes);
+	if (TipoCalculoGradRho == 0) {
+		MatrizIdentidade = (float *)malloc(parametrosGA.numGenes * parametrosGA.numGenes * sizeof(float));
+		GeraMatrizIdentidade(MatrizIdentidade, parametrosGA.numGenes);
+	}
+	else {
+		MatrizIdentidade = (float *)malloc(sizeof(float));
+	}
 	time_f = clock();
 	if (flagImprimeTempo == 1) {
 		imprimeTempo(1, 0, 0, 0, 3, 2, time_i, time_f, &parametrosGA, &parametrosMetodo, &parmsPrograma);
@@ -124,6 +129,7 @@ int main(int argc, char *argv[]) {
 		// FITNESS
 		time_i = clock();
 		Fitness_Serial(	parmTipoFitnessEquacao,
+								TipoCalculoGradRho,
 								geracao0,
 								&parametrosGA,
 								&parametrosMetodo,
@@ -178,6 +184,7 @@ int main(int argc, char *argv[]) {
 	if (flagAtingiuTolerancia == 0) {
 		time_i = clock();
 		Fitness_Serial(	parmTipoFitnessEquacao,
+								TipoCalculoGradRho,
 								geracao0,
 								&parametrosGA,
 								&parametrosMetodo,
@@ -214,7 +221,7 @@ int main(int argc, char *argv[]) {
 							&parametrosGA,
 							&parametrosMetodo);
 
-	printf("\n"); printf("Geracao final:");
+	printf("\n\n"); printf("Geracao final:");
 	imprimeGeracao(geracao0, &parametrosGA);
 	
 	// ==================================================================
